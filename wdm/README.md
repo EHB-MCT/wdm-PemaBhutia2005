@@ -1,16 +1,31 @@
-# React + Vite
+# Project Description
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Outfit Planner is a digital wardrobe app that lets users upload photos of their clothing items, record price and brand information, and view their personal wardrobe collection.
+It shows how seemingly harmless purchase data (like brand and price) can reveal sensitive patterns, like income bracket or location.
 
-Currently, two official plugins are available:
+# Used technologies
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Frontend
 
-## React Compiler
+- React (Vite) — component-based UI
+- JavaScript — logic and data handling
+- HTML / FileReader API — for uploading and previewing clothing photos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Backend
 
-## Expanding the ESLint configuration
+- Python 3 + Flask — lightweight API server
+- scikit-learn — for simple machine learning (Decision Tree / Logistic Regression)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Features
+
+- Upload photos of clothing items
+- Add metadata (price, brand)
+- View a wardrobe list of all items
+- Send wardrobe data to backend for analysis
+- Backend returns a predicted income bracket (Low / Medium / High)
+
+# Sources
+
+# Author
+
+Pema Bhutia
