@@ -1,371 +1,347 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { clothingAPI } from '../services/api';
-import { FiLogOut, FiPlus, FiInbox } from 'react-icons/fi';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { clothingAPI } from "../services/api";
+import { FiLogOut, FiPlus, FiInbox } from "react-icons/fi";
 
 const Dashboard = () => {
-  const [items, setItems] = useState([]);
-  const [formData, setFormData] = useState({
-    brand: '',
-    price: '',
-    season: '',
-    size: '',
-  });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
+	const [items, setItems] = useState([]);
+	const [formData, setFormData] = useState({
+		brand: "",
+		price: "",
+		season: "",
+		size: "",
+	});
+	const [imageFile, setImageFile] = useState(null);
+	const [imagePreview, setImagePreview] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [submitting, setSubmitting] = useState(false);
+	const [message, setMessage] = useState("");
 
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+	const { user, logout } = useAuth();
+	const navigate = useNavigate();
 
-  // Fetch user's clothing items
-  useEffect(() => {
-    fetchItems();
-  }, []);
+	// Fetch user's clothing items
+	useEffect(() => {
+		fetchItems();
+	}, []);
 
-  const fetchItems = async () => {
-    try {
-      const items = await clothingAPI.getAll();
-      setItems(items);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching items:', error);
-      setMessage('Error loading items');
-      setLoading(false);
-    }
-  };
+	const fetchItems = async () => {
+		try {
+			const items = await clothingAPI.getAll();
+			setItems(items);
+			setLoading(false);
+		} catch (error) {
+			console.error("Error fetching items:", error);
+			setMessage("Error loading items");
+			setLoading(false);
+		}
+	};
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+	const handleImageUpload = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setImageFile(file);
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImagePreview(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({
+			...prev,
+			[name]: value,
+		}));
+	};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!imageFile) {
-      setMessage('Please select an image');
-      return;
-    }
+	const handleSubmit = async (e) => {
+		e.preventDefault();
 
-    setSubmitting(true);
-    setMessage('');
+		if (!imageFile) {
+			setMessage("Please select an image");
+			return;
+		}
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('image', imageFile);
-    formDataToSend.append('brand', formData.brand);
-    formDataToSend.append('price', formData.price);
-    formDataToSend.append('season', formData.season);
-    formDataToSend.append('size', formData.size);
+		setSubmitting(true);
+		setMessage("");
 
-    try {
-      const newItem = await clothingAPI.create(formDataToSend);
-      setItems([newItem, ...items]);
-      
-      // Reset form
-      setFormData({ brand: '', price: '', season: '', size: '' });
-      setImageFile(null);
-      setImagePreview(null);
-      setMessage('Item added successfully!');
-      
-      // Clear message after 3 seconds
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
-      console.error('Error adding item:', error);
-      setMessage('Error adding item');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+		const formDataToSend = new FormData();
+		formDataToSend.append("image", imageFile);
+		formDataToSend.append("brand", formData.brand);
+		formDataToSend.append("price", formData.price);
+		formDataToSend.append("season", formData.season);
+		formDataToSend.append("size", formData.size);
 
-  const handleDelete = async (itemId) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) {
-      return;
-    }
+		try {
+			const newItem = await clothingAPI.create(formDataToSend);
+			setItems([newItem, ...items]);
 
-    try {
-      await clothingAPI.delete(itemId);
-      setItems(items.filter(item => item.id !== itemId));
-      setMessage('Item deleted successfully!');
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      setMessage('Error deleting item');
-    }
-  };
+			// Reset form
+			setFormData({ brand: "", price: "", season: "", size: "" });
+			setImageFile(null);
+			setImagePreview(null);
+			setMessage("Item added successfully!");
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+			// Clear message after 3 seconds
+			setTimeout(() => setMessage(""), 3000);
+		} catch (error) {
+			console.error("Error adding item:", error);
+			setMessage("Error adding item");
+		} finally {
+			setSubmitting(false);
+		}
+	};
 
-  if (loading) {
-    return (
-      <div className="page-container flex items-center justify-center">
-        <div className="text-center">
-          <div className="spinner w-5 h-5 mx-auto mb-4"></div>
-          <p className="text-body">Loading your wardrobe...</p>
-        </div>
-      </div>
-    );
-  }
+	const handleDelete = async (itemId) => {
+		if (!window.confirm("Are you sure you want to delete this item?")) {
+			return;
+		}
 
-  return (
-    <div className="page-container">
-      {/* Minimal Header */}
-      <header className="bg-white border-b border-gray-100">
-        <div className="container py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-heading">Wardrobe</h1>
-              <p className="text-small mt-1">Welcome back, {user?.name}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-small text-gray-500">Items</p>
-                <p className="text-2xl font-semibold text-gray-900">{items.length}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="btn-ghost"
-              >
-                <FiLogOut className="mr-2" size={16} />
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+		try {
+			await clothingAPI.delete(itemId);
+			setItems(items.filter((item) => item.id !== itemId));
+			setMessage("Item deleted successfully!");
+			setTimeout(() => setMessage(""), 3000);
+		} catch (error) {
+			console.error("Error deleting item:", error);
+			setMessage("Error deleting item");
+		}
+	};
 
-      <main className="container py-8">
-        {/* Add Item Section */}
-        <section className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-subheading mb-2">Add New Item</h2>
-            <p className="text-body">Upload a photo to start organizing your wardrobe</p>
-          </div>
+	const handleLogout = () => {
+		logout();
+		navigate("/login");
+	};
 
-          <div className="max-w-2xl mx-auto">
-            <div className="card p-8">
-              {message && (
-                <div className={`mb-6 animate-slide-up ${
-                  message.includes('success') ? 'status-success' : 'status-error'
-                }`}>
-                  {message}
-                </div>
-              )}
+	if (loading) {
+		return (
+			<div className="page-container flex items-center justify-center">
+				<div className="text-center">
+					<div className="spinner w-5 h-5 mx-auto mb-4"></div>
+					<p className="text-body">Loading your wardrobe...</p>
+				</div>
+			</div>
+		);
+	}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Image Upload */}
-                <div className="text-center">
-                  <div className="relative inline-block">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      required
-                    />
-                    <div className={`border-2 border-dashed rounded-xl p-8 transition-all duration-200 ${
-                      imagePreview 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-300 hover:border-gray-400 bg-gray-50'
-                    }`}>
-                      {imagePreview ? (
-                        <div className="space-y-4">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-32 h-32 object-cover rounded-lg mx-auto shadow-soft"
-                          />
-                          <p className="text-small text-gray-600">Click to change image</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
-                            <FiPlus className="text-gray-400" size={20} />
-                          </div>
-                          <div>
-                            <p className="text-medium text-gray-900">Click to upload image</p>
-                            <p className="text-small text-gray-500">PNG, JPG up to 5MB</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+	return (
+		<div className="page-container">
+			{/* Minimal Header */}
+			<header className="bg-white border-b border-gray-100">
+				<div className="container py-6">
+					<div className="flex items-center justify-between">
+						<div>
+							<h1 className="text-heading">Wardrobe</h1>
+							<p className="text-small mt-1">Welcome back, {user?.name}</p>
+						</div>
+						<div className="flex items-center space-x-4">
+							<div className="text-right">
+								<p className="text-small text-gray-500">Items</p>
+								<p className="text-2xl font-semibold text-gray-900">{items.length}</p>
+							</div>
+							<button onClick={handleLogout} className="btn-ghost">
+								<FiLogOut className="mr-2" size={16} />
+								Logout
+							</button>
+						</div>
+					</div>
+				</div>
+			</header>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="form-group">
-                    <label htmlFor="brand" className="form-label">Brand</label>
-                    <input
-                      id="brand"
-                      name="brand"
-                      type="text"
-                      value={formData.brand}
-                      onChange={handleChange}
-                      placeholder="e.g. Nike, Zara"
-                      className="input-field"
-                    />
-                  </div>
+			<main className="container py-8">
+				{/* Add Item Section */}
+				<section className="mb-12">
+					<div className="text-center mb-8">
+						<h2 className="text-subheading mb-2">Add New Item</h2>
+						<p className="text-body">Upload a photo to start organizing your wardrobe</p>
+					</div>
 
-                  <div className="form-group">
-                    <label htmlFor="price" className="form-label">Price</label>
-                    <input
-                      id="price"
-                      name="price"
-                      type="number"
-                      value={formData.price}
-                      onChange={handleChange}
-                      placeholder="0.00"
-                      step="0.01"
-                      className="input-field"
-                    />
-                  </div>
+					<div className="max-w-2xl mx-auto">
+						<div className="card p-8">
+							{message && <div className={`mb-6 animate-slide-up ${message.includes("success") ? "status-success" : "status-error"}`}>{message}</div>}
 
-                  <div className="form-group">
-                    <label htmlFor="season" className="form-label">Season</label>
-                    <select
-                      id="season"
-                      name="season"
-                      value={formData.season}
-                      onChange={handleChange}
-                      className="input-field"
-                    >
-                      <option value="">Select season</option>
-                      <option value="Spring">Spring</option>
-                      <option value="Summer">Summer</option>
-                      <option value="Fall">Fall</option>
-                      <option value="Winter">Winter</option>
-                    </select>
-                  </div>
+							<form onSubmit={handleSubmit} className="space-y-6">
+								{/* Image Upload */}
+								<div className="text-center">
+									<div className="relative inline-block">
+										<input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
+										<div className={`border-2 border-dashed rounded-xl p-8 transition-all duration-200 ${imagePreview ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}>
+											{imagePreview ? (
+												<div className="space-y-4">
+													<div
+														style={{
+															width: "128px",
+															height: "128px",
+															overflow: "hidden",
+															borderRadius: "12px",
+															margin: "0 auto",
+														}}
+													>
+														<img
+															src={imagePreview}
+															alt="Preview"
+															style={{
+																width: "100%",
+																height: "100%",
+																objectFit: "cover",
+																display: "block",
+															}}
+														/>
+													</div>
 
-                  <div className="form-group">
-                    <label htmlFor="size" className="form-label">Size</label>
-                    <select
-                      id="size"
-                      name="size"
-                      value={formData.size}
-                      onChange={handleChange}
-                      className="input-field"
-                    >
-                      <option value="">Select size</option>
-                      <option value="XS">XS</option>
-                      <option value="S">S</option>
-                      <option value="M">M</option>
-                      <option value="L">L</option>
-                      <option value="XL">XL</option>
-                      <option value="XXL">XXL</option>
-                    </select>
-                  </div>
-                </div>
+													<p className="text-small text-gray-600">Click to change image</p>
+												</div>
+											) : (
+												<div className="space-y-4">
+													<div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+														<FiPlus className="text-gray-400" size={20} />
+													</div>
+													<div>
+														<p className="text-medium text-gray-900">Click to upload image</p>
+														<p className="text-small text-gray-500">PNG, JPG up to 5MB</p>
+													</div>
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
 
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary w-full"
-                >
-                  {submitting ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="spinner w-4 h-4"></div>
-                      <span>Adding to wardrobe...</span>
-                    </div>
-                  ) : (
-                    'Add to Wardrobe'
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-        </section>
+								{/* Details Grid */}
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+									<div className="form-group">
+										<label htmlFor="brand" className="form-label">
+											Brand
+										</label>
+										<input id="brand" name="brand" type="text" value={formData.brand} onChange={handleChange} placeholder="e.g. Nike, Zara" className="input-field" />
+									</div>
 
-        {/* Items Grid */}
-        <section>
-          <div className="text-center mb-8">
-            <h2 className="text-subheading mb-2">Your Wardrobe</h2>
-            <p className="text-body">Manage your clothing collection</p>
-          </div>
+									<div className="form-group">
+										<label htmlFor="price" className="form-label">
+											Price
+										</label>
+										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" />
+									</div>
 
-          {items.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FiInbox className="text-gray-400" size={20} />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
-              <p className="text-body text-center max-w-md mx-auto">
-                Start building your wardrobe by adding your first clothing item above.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {items.map((item, index) => (
-                <div key={item.id} className="card card-hover group stagger-item" style={{animationDelay: `${index * 0.1}s`}}>
-                  {item.image_path && (
-                    <div className="aspect-square overflow-hidden rounded-t-xl">
-                      <img
-                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${item.image_path}`}
-                        alt="Clothing item"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div className="space-y-2 mb-4">
-                      {item.brand && (
-                        <p className="text-sm font-medium text-gray-900">{item.brand}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        {item.price && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
-                            ${item.price}
-                          </span>
-                        )}
-                        {item.season && (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                            {item.season}
-                          </span>
-                        )}
-                        {item.size && (
-                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                            {item.size}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn-danger w-full text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
-  );
+									<div className="form-group">
+										<label htmlFor="season" className="form-label">
+											Season
+										</label>
+										<select id="season" name="season" value={formData.season} onChange={handleChange} className="input-field">
+											<option value="">Select season</option>
+											<option value="Spring">Spring</option>
+											<option value="Summer">Summer</option>
+											<option value="Fall">Fall</option>
+											<option value="Winter">Winter</option>
+										</select>
+									</div>
+
+									<div className="form-group">
+										<label htmlFor="size" className="form-label">
+											Size
+										</label>
+										<select id="size" name="size" value={formData.size} onChange={handleChange} className="input-field">
+											<option value="">Select size</option>
+											<option value="XS">XS</option>
+											<option value="S">S</option>
+											<option value="M">M</option>
+											<option value="L">L</option>
+											<option value="XL">XL</option>
+											<option value="XXL">XXL</option>
+										</select>
+									</div>
+								</div>
+
+								<button type="submit" disabled={submitting} className="btn-primary w-full">
+									{submitting ? (
+										<div className="flex items-center justify-center space-x-2">
+											<div className="spinner w-4 h-4"></div>
+											<span>Adding to wardrobe...</span>
+										</div>
+									) : (
+										"Add to Wardrobe"
+									)}
+								</button>
+							</form>
+						</div>
+					</div>
+				</section>
+
+				{/* Items Grid */}
+				<section>
+					<div className="text-center mb-8">
+						<h2 className="text-subheading mb-2">Your Wardrobe</h2>
+						<p className="text-body">Manage your clothing collection</p>
+					</div>
+
+					{items.length === 0 ? (
+						<div className="text-center py-16">
+							<div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+								<FiInbox className="text-gray-400" size={20} />
+							</div>
+							<h3 className="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
+							<p className="text-body text-center max-w-md mx-auto">Start building your wardrobe by adding your first clothing item above.</p>
+						</div>
+					) : (
+						<div
+							className="max-w-6xl mx-auto"
+							style={{
+								display: "grid",
+								gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+								gap: "16px",
+								alignItems: "start",
+							}}
+						>
+							{items.map((item, index) => (
+								<div key={item.id} className="card card-hover group stagger-item overflow-hidden" style={{ animationDelay: `${index * 0.1}s` }}>
+									{item.image_path && (
+										<div
+											style={{
+												width: "100%",
+												aspectRatio: "1 / 1",
+												overflow: "hidden",
+												background: "#f3f4f6",
+											}}
+										>
+											<img
+												src={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${item.image_path}`}
+												alt="Clothing item"
+												style={{
+													width: "100%",
+													height: "100%",
+													objectFit: "cover",
+													display: "block",
+												}}
+											/>
+										</div>
+									)}
+
+									<div className="p-4">
+										<div className="space-y-2 mb-4">
+											{item.brand && <p className="text-sm font-medium text-gray-900">{item.brand}</p>}
+
+											<div className="flex flex-wrap gap-2 text-xs">
+												{item.price && <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">${item.price}</span>}
+												{item.season && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{item.season}</span>}
+												{item.size && <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">{item.size}</span>}
+											</div>
+										</div>
+
+										<button onClick={() => handleDelete(item.id)} className="btn-danger w-full text-sm">
+											Remove
+										</button>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</section>
+			</main>
+		</div>
+	);
 };
 
 export default Dashboard;
