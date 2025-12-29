@@ -4,23 +4,33 @@
 @layer utilities {
   /* Icon sizing utilities */
   .icon-xs {
-    @apply w-3 h-3;
+    @apply w-3 h-3 max-w-3 max-h-3;
   }
   
   .icon-sm {
-    @apply w-4 h-4;
+    @apply w-4 h-4 max-w-4 max-h-4;
   }
   
   .icon-md {
-    @apply w-5 h-5;
+    @apply w-5 h-5 max-w-5 max-h-5;
   }
   
   .icon-lg {
-    @apply w-6 h-6;
+    @apply w-6 h-6 max-w-6 max-h-6;
   }
   
   .icon-xl {
-    @apply w-7 h-7;
+    @apply w-7 h-7 max-w-7 max-h-7;
+  }
+  
+  /* Constrain all SVG icons to max size */
+  svg {
+    @apply max-w-[20px] max-h-[20px];
+  }
+  
+  /* Constrain react-icons */
+  .react-icons {
+    @apply max-w-[20px] max-h-[20px];
   }
   
   /* Hover effects */
