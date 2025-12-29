@@ -28,12 +28,18 @@ const OutfitMaker = () => {
 	const fetchItems = async () => {
 		try {
 			const items = await clothingAPI.getAll();
-			setItems(items);
+			// Add imageUrl to each item
+			const itemsWithUrls = items.map(item => ({
+				...item,
+				imageUrl: `http://localhost:5000/uploads/${item.image_path}`,
+				name: item.brand || `${item.category} item`
+			}));
+			setItems(itemsWithUrls);
 
 			// Filter items by category
-			const topsItems = items.filter((item) => ["tops", "sweaters", "jackets"].includes(item?.category));
-			const bottomsItems = items.filter((item) => ["bottoms"].includes(item?.category));
-			const shoesItems = items.filter((item) => ["shoes"].includes(item?.category));
+			const topsItems = itemsWithUrls.filter((item) => ["tops", "sweaters", "jackets"].includes(item?.category));
+			const bottomsItems = itemsWithUrls.filter((item) => ["bottoms"].includes(item?.category));
+			const shoesItems = itemsWithUrls.filter((item) => ["shoes"].includes(item?.category));
 
 			setTops(topsItems);
 			setBottoms(bottomsItems);
@@ -181,13 +187,48 @@ const OutfitMaker = () => {
 					{/* Outfit Preview */}
 					<div>
 						<h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem" }}>Current Outfit</h2>
-						<div style={{ border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem", minHeight: "400px" }}>
-							{/* Top */}
-							{currentTop && <img src={currentTop.imageUrl} alt="top" style={{ width: "100%", marginBottom: "1rem" }} />}
-							{/* Bottom */}
-							{currentBottom && <img src={currentBottom.imageUrl} alt="bottom" style={{ width: "100%", marginBottom: "1rem" }} />}
+						<div style={{ border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem", minHeight: "600px" }}>
+							{/* Tops/Jackets/Sweaters */}
+							<div style={{ marginBottom: "1rem", textAlign: "center" }}>
+								{currentTop ? (
+									<>
+										<img src={currentTop.imageUrl} alt="top" style={{ width: "100%", maxWidth: "200px", height: "auto", maxHeight: "200px", objectFit: "contain" }} />
+										<p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>{currentTop.name}</p>
+									</>
+								) : (
+									<div style={{ width: "100%", maxWidth: "200px", height: "200px", border: "2px dashed #d1d5db", borderRadius: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", color: "#9ca3af" }}>
+										No tops available
+									</div>
+								)}
+							</div>
+
+							{/* Bottoms */}
+							<div style={{ marginBottom: "1rem", textAlign: "center" }}>
+								{currentBottom ? (
+									<>
+										<img src={currentBottom.imageUrl} alt="bottom" style={{ width: "100%", maxWidth: "200px", height: "auto", maxHeight: "200px", objectFit: "contain" }} />
+										<p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>{currentBottom.name}</p>
+									</>
+								) : (
+									<div style={{ width: "100%", maxWidth: "200px", height: "200px", border: "2px dashed #d1d5db", borderRadius: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", color: "#9ca3af" }}>
+										No bottoms available
+									</div>
+								)}
+							</div>
+
 							{/* Shoes */}
-							{currentShoes && <img src={currentShoes.imageUrl} alt="shoes" style={{ width: "100%" }} />}
+							<div style={{ textAlign: "center" }}>
+								{currentShoes ? (
+									<>
+										<img src={currentShoes.imageUrl} alt="shoes" style={{ width: "100%", maxWidth: "200px", height: "auto", maxHeight: "200px", objectFit: "contain" }} />
+										<p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>{currentShoes.name}</p>
+									</>
+								) : (
+									<div style={{ width: "100%", maxWidth: "200px", height: "200px", border: "2px dashed #d1d5db", borderRadius: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", color: "#9ca3af" }}>
+										No shoes available
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
 
@@ -195,37 +236,124 @@ const OutfitMaker = () => {
 					<div>
 						<h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem" }}>Customize</h2>
 						<div style={{ border: "1px solid #e5e7eb", borderRadius: "0.5rem", padding: "1rem" }}>
-							<div style={{ marginBottom: "1rem" }}>
-								<label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.5rem" }}>Tops</label>
-								<select value={topIndex} onChange={(e) => setTopIndex(parseInt(e.target.value))} style={{ width: "100%", padding: "0.5rem" }}>
-									{tops.map((top, idx) => (
-										<option key={idx} value={idx}>
-											{top.name}
-										</option>
-									))}
-								</select>
+							{/* Tops Section */}
+							<div style={{ marginBottom: "1.5rem" }}>
+								<label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.5rem" }}>Tops/Jackets/Sweaters</label>
+								<div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+									<button 
+										onClick={() => setTopIndex((prev) => (prev - 1 + tops.length) % tops.length)}
+										disabled={tops.length === 0}
+										style={{ 
+											padding: "0.5rem", 
+											backgroundColor: tops.length > 0 ? "#3b82f6" : "#e5e7eb", 
+											color: tops.length > 0 ? "white" : "#9ca3af", 
+											border: "none", 
+											borderRadius: "0.375rem", 
+											cursor: tops.length > 0 ? "pointer" : "not-allowed",
+											fontSize: "1rem"
+										}}
+									>
+										←
+									</button>
+									<div style={{ flex: 1, textAlign: "center", padding: "0.5rem", backgroundColor: "#f9fafb", borderRadius: "0.375rem" }}>
+										{tops.length > 0 ? tops[topIndex]?.name || "Select a top" : "No tops available"}
+									</div>
+									<button 
+										onClick={() => setTopIndex((prev) => (prev + 1) % tops.length)}
+										disabled={tops.length === 0}
+										style={{ 
+											padding: "0.5rem", 
+											backgroundColor: tops.length > 0 ? "#3b82f6" : "#e5e7eb", 
+											color: tops.length > 0 ? "white" : "#9ca3af", 
+											border: "none", 
+											borderRadius: "0.375rem", 
+											cursor: tops.length > 0 ? "pointer" : "not-allowed",
+											fontSize: "1rem"
+										}}
+									>
+										→
+									</button>
+								</div>
 							</div>
 
-							<div style={{ marginBottom: "1rem" }}>
+							{/* Bottoms Section */}
+							<div style={{ marginBottom: "1.5rem" }}>
 								<label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.5rem" }}>Bottoms</label>
-								<select value={bottomIndex} onChange={(e) => setBottomIndex(parseInt(e.target.value))} style={{ width: "100%", padding: "0.5rem" }}>
-									{bottoms.map((bottom, idx) => (
-										<option key={idx} value={idx}>
-											{bottom.name}
-										</option>
-									))}
-								</select>
+								<div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+									<button 
+										onClick={() => setBottomIndex((prev) => (prev - 1 + bottoms.length) % bottoms.length)}
+										disabled={bottoms.length === 0}
+										style={{ 
+											padding: "0.5rem", 
+											backgroundColor: bottoms.length > 0 ? "#3b82f6" : "#e5e7eb", 
+											color: bottoms.length > 0 ? "white" : "#9ca3af", 
+											border: "none", 
+											borderRadius: "0.375rem", 
+											cursor: bottoms.length > 0 ? "pointer" : "not-allowed",
+											fontSize: "1rem"
+										}}
+									>
+										←
+									</button>
+									<div style={{ flex: 1, textAlign: "center", padding: "0.5rem", backgroundColor: "#f9fafb", borderRadius: "0.375rem" }}>
+										{bottoms.length > 0 ? bottoms[bottomIndex]?.name || "Select bottoms" : "No bottoms available"}
+									</div>
+									<button 
+										onClick={() => setBottomIndex((prev) => (prev + 1) % bottoms.length)}
+										disabled={bottoms.length === 0}
+										style={{ 
+											padding: "0.5rem", 
+											backgroundColor: bottoms.length > 0 ? "#3b82f6" : "#e5e7eb", 
+											color: bottoms.length > 0 ? "white" : "#9ca3af", 
+											border: "none", 
+											borderRadius: "0.375rem", 
+											cursor: bottoms.length > 0 ? "pointer" : "not-allowed",
+											fontSize: "1rem"
+										}}
+									>
+										→
+									</button>
+								</div>
 							</div>
 
-							<div style={{ marginBottom: "1rem" }}>
+							{/* Shoes Section */}
+							<div style={{ marginBottom: "1.5rem" }}>
 								<label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.5rem" }}>Shoes</label>
-								<select value={shoesIndex} onChange={(e) => setShoesIndex(parseInt(e.target.value))} style={{ width: "100%", padding: "0.5rem" }}>
-									{shoes.map((shoe, idx) => (
-										<option key={idx} value={idx}>
-											{shoe.name}
-										</option>
-									))}
-								</select>
+								<div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+									<button 
+										onClick={() => setShoesIndex((prev) => (prev - 1 + shoes.length) % shoes.length)}
+										disabled={shoes.length === 0}
+										style={{ 
+											padding: "0.5rem", 
+											backgroundColor: shoes.length > 0 ? "#3b82f6" : "#e5e7eb", 
+											color: shoes.length > 0 ? "white" : "#9ca3af", 
+											border: "none", 
+											borderRadius: "0.375rem", 
+											cursor: shoes.length > 0 ? "pointer" : "not-allowed",
+											fontSize: "1rem"
+										}}
+									>
+										←
+									</button>
+									<div style={{ flex: 1, textAlign: "center", padding: "0.5rem", backgroundColor: "#f9fafb", borderRadius: "0.375rem" }}>
+										{shoes.length > 0 ? shoes[shoesIndex]?.name || "Select shoes" : "No shoes available"}
+									</div>
+									<button 
+										onClick={() => setShoesIndex((prev) => (prev + 1) % shoes.length)}
+										disabled={shoes.length === 0}
+										style={{ 
+											padding: "0.5rem", 
+											backgroundColor: shoes.length > 0 ? "#3b82f6" : "#e5e7eb", 
+											color: shoes.length > 0 ? "white" : "#9ca3af", 
+											border: "none", 
+											borderRadius: "0.375rem", 
+											cursor: shoes.length > 0 ? "pointer" : "not-allowed",
+											fontSize: "1rem"
+										}}
+									>
+										→
+									</button>
+								</div>
 							</div>
 
 							<div style={{ marginBottom: "1rem" }}>
