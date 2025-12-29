@@ -48,6 +48,23 @@ db.serialize(() => {
       console.log('Category column already exists or error adding it:', err.message);
     }
   });
+
+  // Create outfits table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS outfits (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      top_id TEXT,
+      bottom_id TEXT,
+      shoes_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      FOREIGN KEY (top_id) REFERENCES clothing_items (id) ON DELETE SET NULL,
+      FOREIGN KEY (bottom_id) REFERENCES clothing_items (id) ON DELETE SET NULL,
+      FOREIGN KEY (shoes_id) REFERENCES clothing_items (id) ON DELETE SET NULL
+    )
+  `);
 });
 
 module.exports = db;

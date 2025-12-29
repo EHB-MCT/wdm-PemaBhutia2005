@@ -72,4 +72,22 @@ export const clothingAPI = {
   },
 };
 
+// Outfits API calls
+export const outfitAPI = {
+  getAll: async () => {
+    const response = await api.get('/outfits');
+    return response.data;
+  },
+
+  create: async (outfitData) => {
+    const response = await api.post('/outfits', outfitData);
+    return response.data;
+  },
+
+  delete: async (id) => {
+    const response = await api.delete(`/outfits/${id}`);
+    return response.data;
+  },
+};
+
 export default api;

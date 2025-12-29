@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { clothingAPI } from "../services/api";
+import OutfitMaker from "./OutfitMaker";
 
 const Dashboard = () => {
 	const [items, setItems] = useState([]);
@@ -497,6 +498,9 @@ const Dashboard = () => {
 						</div>
 					)}
 				</section>
+
+				{/* Outfit Maker Section */}
+				<OutfitMaker clothingItems={items} />
 			</main>
 		</div>
 	);

@@ -15,9 +15,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 const authRoutes = require('./routes/auth');
 const clothingItemsRoutes = require('./routes/clothing-items');
+const outfitRoutes = require('./routes/outfits');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/clothing-items', clothingItemsRoutes);
+app.use('/api/outfits', outfitRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
