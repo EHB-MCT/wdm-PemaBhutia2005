@@ -33,11 +33,21 @@ db.serialize(() => {
       price TEXT,
       season TEXT,
       size TEXT,
+      category TEXT,
       image_path TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
   `);
+
+  // Add category column if it doesn't exist (for existing databases)
+  db.run(`
+    ALTER TABLE clothing_items ADD COLUMN category TEXT
+  `, (err) => {
+    if (err && !err.message.includes('duplicate column name')) {
+      console.log('Category column already exists or error adding it:', err.message);
+    }
+  });
 });
 
 module.exports = db;

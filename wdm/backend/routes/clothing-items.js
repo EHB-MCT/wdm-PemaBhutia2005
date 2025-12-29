@@ -53,7 +53,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: 'No image file provided.' });
     }
 
-    const { brand, price, season, size } = req.body;
+    const { brand, price, season, size, category } = req.body;
     
     const newItem = await ClothingItem.create(
       req.user.id,
@@ -61,6 +61,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       price || '',
       season || '',
       size || '',
+      category || '',
       req.file.filename
     );
 

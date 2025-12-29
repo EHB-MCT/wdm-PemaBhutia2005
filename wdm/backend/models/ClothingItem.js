@@ -2,16 +2,16 @@ const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 
 class ClothingItem {
-  static async create(userId, brand, price, season, size, imagePath) {
+  static async create(userId, brand, price, season, size, category, imagePath) {
     const itemId = uuidv4();
     
     return new Promise((resolve, reject) => {
       const query = `
-        INSERT INTO clothing_items (id, user_id, brand, price, season, size, image_path)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO clothing_items (id, user_id, brand, price, season, size, category, image_path)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
-      db.run(query, [itemId, userId, brand, price, season, size, imagePath], function(err) {
+      db.run(query, [itemId, userId, brand, price, season, size, category, imagePath], function(err) {
         if (err) {
           reject(err);
         } else {
@@ -22,6 +22,7 @@ class ClothingItem {
             price, 
             season, 
             size, 
+            category,
             image_path: imagePath 
           });
         }
