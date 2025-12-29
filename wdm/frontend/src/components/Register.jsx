@@ -81,7 +81,7 @@ const Register = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
@@ -174,7 +174,7 @@ const Register = () => {
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="spinner w-4 h-4"></div>
+                  <div className="spinner w-3 h-3"></div>
                   <span>Creating account...</span>
                 </div>
               ) : (

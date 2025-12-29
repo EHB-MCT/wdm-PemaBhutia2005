@@ -10,6 +10,7 @@ const Dashboard = () => {
     price: '',
     season: '',
     size: '',
+    category: '',
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -120,7 +121,7 @@ const Dashboard = () => {
     return (
       <div className="page-container flex items-center justify-center">
         <div className="text-center">
-          <div className="spinner w-8 h-8 mx-auto mb-4"></div>
+          <div className="spinner w-5 h-5 mx-auto mb-4"></div>
           <p className="text-body">Loading your wardrobe...</p>
         </div>
       </div>
@@ -146,7 +147,7 @@ const Dashboard = () => {
                 onClick={handleLogout}
                 className="btn-ghost"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{width: '16px', height: '16px', marginRight: '4px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 Logout
@@ -192,17 +193,17 @@ const Dashboard = () => {
                     }`}>
                       {imagePreview ? (
                         <div className="space-y-4">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-32 h-32 object-cover rounded-lg mx-auto shadow-soft"
-                          />
+                           <img 
+                             src={imagePreview} 
+                             alt="Preview" 
+                             style={{width: 'auto', maxHeight: '120px', height: 'auto', objectFit: 'contain', borderRadius: '0.5rem'}}
+                           />
                           <p className="text-small text-gray-600">Click to change image</p>
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+                            <svg style={{width: '16px', height: '16px'}} className="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                           </div>
@@ -289,7 +290,7 @@ const Dashboard = () => {
                 >
                   {submitting ? (
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="spinner w-4 h-4"></div>
+                      <div className="spinner w-3 h-3"></div>
                       <span>Adding to wardrobe...</span>
                     </div>
                   ) : (
@@ -310,8 +311,8 @@ const Dashboard = () => {
 
           {items.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg style={{width: '16px', height: '16px'}} className="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
@@ -321,15 +322,17 @@ const Dashboard = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+             <div style={{display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem'}}>
               {items.map((item, index) => (
                 <div key={item.id} className="card card-hover group stagger-item" style={{animationDelay: `${index * 0.1}s`}}>
                   {item.image_path && (
-                    <div className="aspect-square overflow-hidden rounded-t-xl">
+                    <div style={{overflow: 'hidden', borderRadius: '0.5rem', maxWidth: '100%', display: 'flex', justifyContent: 'center'}}>
                       <img
                         src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${item.image_path}`}
                         alt="Clothing item"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        style={{maxHeight: '120px', width: 'auto', height: 'auto', objectFit: 'contain', transition: 'transform 0.3s'}}
+                        onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                        onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
                       />
                     </div>
                   )}
