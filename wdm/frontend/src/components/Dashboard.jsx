@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { clothingAPI } from "../services/api";
-import OutfitMaker from "./OutfitMaker";
 
 const Dashboard = () => {
 	const [items, setItems] = useState([]);
@@ -141,14 +140,37 @@ const Dashboard = () => {
 							<h1 className="text-heading">Wardrobe</h1>
 							<p className="text-small mt-1">Welcome back, {user?.name}</p>
 						</div>
-						<div className="flex items-center space-x-4">
-							<button onClick={handleLogout} className="btn-ghost">
-								<svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-								</svg>
-								Logout
-							</button>
-						</div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/outfit-maker')}
+                style={{
+                  padding: '0.625rem 1rem',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 200ms ease-in-out'
+                }}
+              >
+                Outfit Maker
+              </button>
+              <div className="text-right">
+                <p className="text-small text-gray-500">Items</p>
+                <p className="text-2xl font-semibold text-gray-900">{items.length}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="btn-ghost"
+              >
+                <svg style={{width: '16px', height: '16px', marginRight: '4px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+              </button>
+            </div>
 					</div>
 				</div>
 			</header>
@@ -498,9 +520,6 @@ const Dashboard = () => {
 						</div>
 					)}
 				</section>
-
-				{/* Outfit Maker Section */}
-				<OutfitMaker clothingItems={items} />
 			</main>
 		</div>
 	);

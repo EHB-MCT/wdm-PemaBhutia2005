@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import OutfitMaker from './components/OutfitMaker';
 
 function App() {
   return (
@@ -25,7 +26,15 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            
+            <Route 
+              path="/outfit-maker" 
+              element={
+                <ProtectedRoute>
+                  <OutfitMaker />
+                </ProtectedRoute>
+              } 
+            />
+               
             {/* Redirect root to dashboard or login */}
             <Route 
               path="/" 
