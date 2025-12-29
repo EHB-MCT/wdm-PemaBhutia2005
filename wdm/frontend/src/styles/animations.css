@@ -2,6 +2,27 @@
 
 /* Additional micro-interactions */
 @layer utilities {
+  /* Icon sizing utilities */
+  .icon-xs {
+    @apply w-3 h-3;
+  }
+  
+  .icon-sm {
+    @apply w-4 h-4;
+  }
+  
+  .icon-md {
+    @apply w-5 h-5;
+  }
+  
+  .icon-lg {
+    @apply w-6 h-6;
+  }
+  
+  .icon-xl {
+    @apply w-7 h-7;
+  }
+  
   /* Hover effects */
   .hover-lift {
     @apply transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-medium;
