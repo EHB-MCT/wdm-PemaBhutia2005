@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import Navigation from "./Navigation";
 import { adminAPI } from "../services/api";
 import { FiShield, FiMapPin, FiCamera, FiCalendar, FiPackage } from "react-icons/fi";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, BubbleController, PointElement } from 'chart.js';
+import { Bar, Bubble } from 'react-chartjs-2';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
   };
 
   // Register Chart.js components
-  ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+  ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, BubbleController, PointElement);
 
   // Chart data
   const chartData = {
@@ -211,6 +211,154 @@ const AdminDashboard = () => {
         ticks: {
           callback: function(value) {
             return value + '%';
+          }
+        }
+      },
+    },
+  };
+
+  // Bubble Chart: Wardrobe Value vs. Item Count
+  const getBubbleChartData = () => {
+    const bubbleData = usersWithItems.map(user => {
+      const items = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+      const itemCount = items.length;
+      const totalValue = items.reduce((sum, item) => sum + parseFloat(item.price), 0);
+      const avgPrice = itemCount > 0 ? totalValue / itemCount : 0;
+      
+      // Calculate upload frequency (items per month since registration or last year)
+      const uploadDate = new Date(user.createdAt || Date.now() - 365 * 24 * 60 * 60 * 1000);
+      const monthsSinceUpload = Math.max(1, (Date.now() - uploadDate.getTime()) / (30 * 24 * 60 * 60 * 1000));
+      const uploadFrequency = itemCount / monthsSinceUpload;
+      
+      // Color based on upload frequency (blue=low, green=medium, red=high)
+      let color;
+      if (uploadFrequency < 1) {
+        color = 'rgba(59, 130, 246, 0.6)'; // blue - low frequency
+      } else if (uploadFrequency < 3) {
+        color = 'rgba(34, 197, 94, 0.6)'; // green - medium frequency
+      } else if (uploadFrequency < 6) {
+        color = 'rgba(251, 146, 60, 0.6)'; // orange - high frequency
+      } else {
+        color = 'rgba(239, 68, 68, 0.6)'; // red - very high frequency
+      }
+      
+      return {
+        x: itemCount,
+        y: totalValue,
+        r: Math.min(Math.max(avgPrice * 0.5, 8), 25), // Bubble size based on avg price, min 8, max 25
+        user: user,
+        avgPrice: avgPrice,
+        uploadFrequency: uploadFrequency
+      };
+    }).filter(user => user.x > 0 && user.y > 0); // Only include users with valid data
+
+    return {
+      datasets: [
+        {
+          label: 'Wardrobe Analysis',
+          data: bubbleData,
+          backgroundColor: bubbleData.map(d => {
+            if (d.uploadFrequency < 1) return 'rgba(59, 130, 246, 0.6)';
+            if (d.uploadFrequency < 3) return 'rgba(34, 197, 94, 0.6)';
+            if (d.uploadFrequency < 6) return 'rgba(251, 146, 60, 0.6)';
+            return 'rgba(239, 68, 68, 0.6)';
+          }),
+          borderColor: bubbleData.map(d => {
+            if (d.uploadFrequency < 1) return 'rgba(59, 130, 246, 1)';
+            if (d.uploadFrequency < 3) return 'rgba(34, 197, 94, 1)';
+            if (d.uploadFrequency < 6) return 'rgba(251, 146, 60, 1)';
+            return 'rgba(239, 68, 68, 1)';
+          }),
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
+  const bubbleChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Wardrobe Value vs. Item Count Analysis',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
+      },
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: {
+          generateLabels: function() {
+            return [
+              {
+                text: 'Blue: Low upload frequency (<1/mo)',
+                fillStyle: 'rgba(59, 130, 246, 0.6)',
+                strokeStyle: 'rgba(59, 130, 246, 1)',
+                lineWidth: 1,
+              },
+              {
+                text: 'Green: Medium frequency (1-3/mo)',
+                fillStyle: 'rgba(34, 197, 94, 0.6)',
+                strokeStyle: 'rgba(34, 197, 94, 1)',
+                lineWidth: 1,
+              },
+              {
+                text: 'Orange: High frequency (3-6/mo)',
+                fillStyle: 'rgba(251, 146, 60, 0.6)',
+                strokeStyle: 'rgba(251, 146, 60, 1)',
+                lineWidth: 1,
+              },
+              {
+                text: 'Red: Very high frequency (>6/mo)',
+                fillStyle: 'rgba(239, 68, 68, 0.6)',
+                strokeStyle: 'rgba(239, 68, 68, 1)',
+                lineWidth: 1,
+              },
+              {
+                text: 'Bubble size = Average item price',
+                fillStyle: 'transparent',
+                strokeStyle: '#666',
+                lineWidth: 1,
+              }
+            ];
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const data = context.raw;
+            return [
+              `User: ${data.user.name}`,
+              `Items: ${data.x}`,
+              `Total Value: $${data.y.toFixed(2)}`,
+              `Avg Price: $${data.avgPrice.toFixed(2)}`,
+              `Upload Frequency: ${data.uploadFrequency.toFixed(1)}/month`
+            ];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Number of Items',
+        },
+        beginAtZero: true,
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Total Wardrobe Value ($)',
+        },
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return '$' + value;
           }
         }
       },
@@ -417,6 +565,48 @@ const AdminDashboard = () => {
                   <div style={{ padding: "1rem", backgroundColor: "#fef3c7", border: "1px solid #fed7aa", borderRadius: "0.5rem" }}>
                     <h4 style={{ margin: "0 0 8px 0", color: "#d97706", fontSize: "14px", fontWeight: "600" }}>🟠 Premium (&gt;$100)</h4>
                     <p style={{ margin: "0", color: "#b45309", fontSize: "12px" }}>High-end fashion, luxury brands</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Wardrobe Value vs. Item Count Bubble Chart */}
+            <div style={{ marginTop: "2rem" }}>
+              <div className="card" style={{ padding: "1.5rem" }}>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
+                  📊 Wardrobe Value vs. Item Count Analysis
+                </h2>
+                <div style={{ height: "500px", position: "relative" }}>
+                  {getBubbleChartData().datasets[0].data.length > 0 ? (
+                    <Bubble data={getBubbleChartData()} options={bubbleChartOptions} />
+                  ) : (
+                    <div style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "100%",
+                      color: "#6b7280" 
+                    }}>
+                      No price data available for bubble chart analysis
+                    </div>
+                  )}
+                </div>
+                <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                  <div style={{ padding: "1rem", backgroundColor: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#0369a1", fontSize: "14px", fontWeight: "600" }}>🔵 X-Axis: Item Count</h4>
+                    <p style={{ margin: "0", color: "#075985", fontSize: "12px" }}>Number of items in user's wardrobe</p>
+                  </div>
+                  <div style={{ padding: "1rem", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#166534", fontSize: "14px", fontWeight: "600" }}>🟢 Y-Axis: Total Value</h4>
+                    <p style={{ margin: "0", color: "#15803d", fontSize: "12px" }}>Combined value of all items</p>
+                  </div>
+                  <div style={{ padding: "1rem", backgroundColor: "#fef3c7", border: "1px solid #fed7aa", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#d97706", fontSize: "14px", fontWeight: "600" }}>🟠 Bubble Size: Avg Price</h4>
+                    <p style={{ margin: "0", color: "#b45309", fontSize: "12px" }}>Average price per item</p>
+                  </div>
+                  <div style={{ padding: "1rem", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#dc2626", fontSize: "14px", fontWeight: "600" }}>🔴 Color: Upload Frequency</h4>
+                    <p style={{ margin: "0", color: "#b91c1c", fontSize: "12px" }}>How often user adds items</p>
                   </div>
                 </div>
               </div>
