@@ -50,19 +50,6 @@ export const authAPI = {
   },
 };
 
-// Admin Auth API calls
-export const adminAPI = {
-  register: async (name, email, password, adminKey) => {
-    const response = await api.post('/auth/admin/register', { name, email, password, adminKey });
-    return response.data;
-  },
-
-  login: async (email, password) => {
-    const response = await api.post('/auth/admin/login', { email, password });
-    return response.data;
-  },
-};
-
 // Clothing items API calls
 export const clothingAPI = {
   getAll: async () => {
@@ -99,6 +86,34 @@ export const outfitAPI = {
 
   delete: async (id) => {
     const response = await api.delete(`/outfits/${id}`);
+    return response.data;
+  },
+};
+
+// Admin API calls
+export const adminAPI = {
+  register: async (name, email, password, adminKey) => {
+    const response = await api.post('/auth/admin/register', { name, email, password, adminKey });
+    return response.data;
+  },
+
+  login: async (email, password) => {
+    const response = await api.post('/auth/admin/login', { email, password });
+    return response.data;
+  },
+
+  checkAdminStatus: async () => {
+    const response = await api.get('/clothing-items/admin/check-status');
+    return response.data;
+  },
+
+  getUsersWithItems: async () => {
+    const response = await api.get('/clothing-items/admin/users-with-items');
+    return response.data;
+  },
+
+  makeAdmin: async (userId) => {
+    const response = await api.post('/clothing-items/admin/make-admin', { userId });
     return response.data;
   },
 };

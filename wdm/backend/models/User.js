@@ -43,7 +43,7 @@ class User {
 
   static async findById(id) {
     return new Promise((resolve, reject) => {
-      const query = 'SELECT id, name, email, created_at FROM users WHERE id = ?';
+      const query = 'SELECT id, name, email, is_admin, created_at FROM users WHERE id = ?';
       
       db.get(query, [id], (err, row) => {
         if (err) {

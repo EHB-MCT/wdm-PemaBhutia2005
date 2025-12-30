@@ -8,6 +8,7 @@ import Register from './components/Register';
 import AdminLogin from './components/AdminLogin';
 import AdminRegister from './components/AdminRegister';
 import Dashboard from './components/Dashboard';
+import AdminDashboard from './components/AdminDashboard';
 import OutfitMaker from './components/OutfitMaker';
 
 function App() {
@@ -45,7 +46,7 @@ function App() {
               path="/admin/dashboard" 
               element={
                 <AdminProtectedRoute>
-                  <Dashboard />
+                  <AdminDashboard />
                 </AdminProtectedRoute>
               } 
             />
