@@ -9,6 +9,18 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
 
+  // Color coding for social status
+  const getSocialStatusColor = (status) => {
+    switch (status) {
+      case 'Budget-Conscious': return '#10b981'; // green
+      case 'Middle Class': return '#3b82f6'; // blue
+      case 'Upper Middle Class': return '#8b5cf6'; // purple
+      case 'Affluent': return '#f59e0b'; // amber
+      case 'High Net Worth': return '#dc2626'; // red
+      default: return '#6b7280'; // gray
+    }
+  };
+
   useEffect(() => {
     fetchUsersWithItems();
   }, []);
@@ -137,14 +149,34 @@ const AdminDashboard = () => {
                   </p>
                 </div>
               </div>
-              <div className="card">
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Total Items</p>
-                  <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
-                    {usersWithItems.reduce((sum, user) => sum + user.items.length, 0)}
-                  </p>
-                </div>
+            <div className="card">
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Total Items</p>
+                <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
+                  {usersWithItems.reduce((sum, user) => sum + user.items.length, 0)}
+                </p>
               </div>
+            </div>
+            <div className="card">
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Avg Item Price</p>
+                <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
+                  ${(() => {
+                    const usersWithValidItems = usersWithItems.filter(user => user.items.length > 0);
+                    if (usersWithValidItems.length === 0) return '0.0';
+                    
+                    const totalAverage = usersWithItems.reduce((sum, user) => {
+                      const validPrices = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                      if (validPrices.length === 0) return sum;
+                      const userAvg = validPrices.reduce((itemSum, item) => itemSum + parseFloat(item.price), 0) / validPrices.length;
+                      return sum + userAvg;
+                    }, 0);
+                    
+                    return (totalAverage / usersWithValidItems.length).toFixed(1);
+                  })()}
+                </p>
+              </div>
+            </div>
               <div className="card">
                 <div style={{ textAlign: "center" }}>
                   <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Items with GPS</p>
@@ -176,9 +208,31 @@ const AdminDashboard = () => {
                       <h3 style={{ fontSize: "1.125rem", fontWeight: "600", color: "#111827", margin: "0" }}>
                         {user.name}
                       </h3>
-                      <p style={{ fontSize: "0.875rem", color: "#6b7280", margin: "0.25rem 0 0 0" }}>
+                      <p style={{ fontSize: "0.875rem", color: "#6b7280", margin: "0.25rem 0 0.25rem 0" }}>
                         {user.email} • {user.items.length} items
                       </p>
+                      {user.priceStats && (
+                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                          <span style={{ 
+                            padding: "2px 8px", 
+                            borderRadius: "9999px", 
+                            fontSize: "12px",
+                            fontWeight: "500",
+                            backgroundColor: getSocialStatusColor(user.priceStats.socialStatus),
+                            color: "white"
+                          }}>
+                            {user.priceStats.socialStatus}
+                          </span>
+                          <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                            Avg: ${user.priceStats.averagePrice}
+                          </span>
+                          {user.priceStats.totalItems > 0 && (
+                            <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                              Total: ${user.priceStats.totalPrice}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <button
                       style={{

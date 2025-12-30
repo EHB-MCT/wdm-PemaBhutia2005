@@ -140,9 +140,38 @@ router.get("/admin/users-with-items", authMiddleware, async (req, res) => {
 		const usersWithItems = await Promise.all(
 			users.map(async (user) => {
 				const items = await ClothingItem.findByUserId(user.id);
+				
+				// Calculate price statistics
+				const validPrices = items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+				const totalItems = validPrices.length;
+				const totalPrice = validPrices.reduce((sum, item) => sum + parseFloat(item.price), 0);
+				const averagePrice = totalItems > 0 ? (totalPrice / totalItems) : 0;
+				
+				// Determine social status based on average price
+				let socialStatus;
+				if (totalItems === 0) {
+					socialStatus = 'No Data';
+				} else if (averagePrice < 30) {
+					socialStatus = 'Budget-Conscious';
+				} else if (averagePrice < 60) {
+					socialStatus = 'Middle Class';
+				} else if (averagePrice < 100) {
+					socialStatus = 'Upper Middle Class';
+				} else if (averagePrice < 200) {
+					socialStatus = 'Affluent';
+				} else {
+					socialStatus = 'High Net Worth';
+				}
+				
 				return {
 					...user,
-					items: items
+					items: items,
+					priceStats: {
+						totalItems,
+						averagePrice: averagePrice.toFixed(2),
+						totalPrice: totalPrice.toFixed(2),
+						socialStatus
+					}
 				};
 			})
 		);
