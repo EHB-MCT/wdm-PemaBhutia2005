@@ -11,6 +11,42 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
+// Drop and recreate tables to ensure schema is up to date
+db.serialize(() => {
+  // Drop existing tables
+  db.run(`DROP TABLE IF EXISTS users`);
+  db.run(`DROP TABLE IF EXISTS clothing_items`);
+  
+  // Create users table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Create clothing items table with all required columns including category
+  db.run(`
+    CREATE TABLE IF NOT EXISTS clothing_items (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      brand TEXT,
+      price TEXT,
+      season TEXT,
+      size TEXT,
+      category TEXT,
+      image_path TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+  `);
+  
+  console.log('Database schema updated successfully');
+});
+
 // Create tables
 db.serialize(() => {
   // Users table
@@ -24,7 +60,7 @@ db.serialize(() => {
     )
   `);
 
-  // Clothing items table (updated to include user_id)
+  // Clothing items table (updated to include user_id and category)
   db.run(`
     CREATE TABLE IF NOT EXISTS clothing_items (
       id TEXT PRIMARY KEY,

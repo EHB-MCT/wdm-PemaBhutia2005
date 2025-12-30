@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { clothingAPI } from "../services/api";
 import Navigation from "./Navigation";
+import { FiPlus } from "react-icons/fi";
 
 const Dashboard = () => {
 	const [items, setItems] = useState([]);
@@ -212,10 +213,8 @@ const Dashboard = () => {
 															}}
 														/>
 													) : (
-														<div style={{width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-															<svg style={{width: '20px', height: '20px'}} className="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-															</svg>
+														<div className="w-full h-full flex items-center justify-center">
+															<FiPlus className="text-gray-400" size={20} />
 														</div>
 													)}
 												</div>
