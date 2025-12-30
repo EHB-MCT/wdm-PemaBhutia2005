@@ -11,6 +11,7 @@ const AdminDashboard = () => {
   const [usersWithItems, setUsersWithItems] = useState([]);
   const [histogramData, setHistogramData] = useState([]);
   const [locationData, setLocationData] = useState([]);
+  const [priceTierData, setPriceTierData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
@@ -84,6 +85,7 @@ const AdminDashboard = () => {
     fetchUsersWithItems();
     fetchHistogramData();
     fetchLocationData();
+    fetchPriceTierData();
   }, []);
 
   const fetchUsersWithItems = async () => {
@@ -118,6 +120,15 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchPriceTierData = async () => {
+    try {
+      const data = await adminAPI.getPriceTierData();
+      setPriceTierData(data);
+    } catch (error) {
+      console.error("Error fetching price tier data:", error);
+    }
+  };
+
   const toggleUserExpansion = (userId) => {
     const newExpanded = new Set(expandedUsers);
     if (newExpanded.has(userId)) {
@@ -126,6 +137,84 @@ const AdminDashboard = () => {
       newExpanded.add(userId);
     }
     setExpandedUsers(newExpanded);
+  };
+
+  // Price tier chart configuration
+  const priceTierChartData = {
+    labels: priceTierData.map(user => user.userName),
+    datasets: [
+      {
+        label: 'Budget (<$30)',
+        data: priceTierData.map(user => user.percentages?.budget || 0),
+        backgroundColor: '#10b981',
+        borderColor: '#059669',
+        borderWidth: 1,
+      },
+      {
+        label: 'Mid-range ($30-$100)',
+        data: priceTierData.map(user => user.percentages?.midRange || 0),
+        backgroundColor: '#3b82f6',
+        borderColor: '#1d4ed8',
+        borderWidth: 1,
+      },
+      {
+        label: 'Premium (>$100)',
+        data: priceTierData.map(user => user.percentages?.premium || 0),
+        backgroundColor: '#f59e0b',
+        borderColor: '#d97706',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const priceTierChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'User Wardrobe Class Analysis',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
+      },
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const value = context.parsed.y;
+            return `${context.dataset.label}: ${value}%`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Users',
+        },
+        stacked: true,
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Percentage of Wardrobe (%)',
+        },
+        stacked: true,
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          callback: function(value) {
+            return value + '%';
+          }
+        }
+      },
+    },
   };
 
   const formatExifData = (item) => {
@@ -291,6 +380,44 @@ const AdminDashboard = () => {
                 </div>
                 <div style={{ marginTop: "1rem", textAlign: "center", color: "#6b7280", fontSize: "0.875rem" }}>
                   Showing when users take photos throughout the day (24-hour UTC format)
+                </div>
+              </div>
+            </div>
+
+            {/* Wardrobe Class Analysis */}
+            <div style={{ marginTop: "2rem" }}>
+              <div className="card" style={{ padding: "1.5rem" }}>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
+                  💰 Wardrobe Class Distribution
+                </h2>
+                <div style={{ height: "450px", position: "relative" }}>
+                  {priceTierData.length > 0 ? (
+                    <Bar data={priceTierChartData} options={priceTierChartOptions} />
+                  ) : (
+                    <div style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "100%",
+                      color: "#6b7280" 
+                    }}>
+                      No price data available for class analysis
+                    </div>
+                  )}
+                </div>
+                <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                  <div style={{ padding: "1rem", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#166534", fontSize: "14px", fontWeight: "600" }}>🟢 Budget (&lt;$30)</h4>
+                    <p style={{ margin: "0", color: "#15803d", fontSize: "12px" }}>Affordable items, budget-conscious shoppers</p>
+                  </div>
+                  <div style={{ padding: "1rem", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#1d4ed8", fontSize: "14px", fontWeight: "600" }}>🔵 Mid-range ($30-$100)</h4>
+                    <p style={{ margin: "0", color: "#1e40af", fontSize: "12px" }}>Standard retail price range</p>
+                  </div>
+                  <div style={{ padding: "1rem", backgroundColor: "#fef3c7", border: "1px solid #fed7aa", borderRadius: "0.5rem" }}>
+                    <h4 style={{ margin: "0 0 8px 0", color: "#d97706", fontSize: "14px", fontWeight: "600" }}>🟠 Premium (&gt;$100)</h4>
+                    <p style={{ margin: "0", color: "#b45309", fontSize: "12px" }}>High-end fashion, luxury brands</p>
+                  </div>
                 </div>
               </div>
             </div>

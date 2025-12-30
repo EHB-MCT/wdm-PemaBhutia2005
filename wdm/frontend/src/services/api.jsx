@@ -116,6 +116,11 @@ export const adminAPI = {
     const response = await api.get('/clothing-items/admin/location-data');
     return response.data;
   },
+
+  getPriceTierData: async () => {
+    const response = await api.get('/clothing-items/admin/price-tiers');
+    return response.data;
+  },
 };
 
 export default api;

@@ -309,4 +309,73 @@ router.get("/admin/location-data", authMiddleware, async (req, res) => {
 	}
 });
 
+// Get price tier breakdown for class analysis (admin only)
+router.get("/admin/price-tiers", authMiddleware, async (req, res) => {
+	try {
+		// Check if user is admin
+		const user = await User.findById(req.user.id);
+		
+		if (!user || (user.is_admin !== 1 && user.is_admin !== true)) {
+			return res.status(403).json({ error: "Access denied. Admin privileges required." });
+		}
+
+		// Get all users with their items
+		const db = require("../config/database");
+		const users = await new Promise((resolve, reject) => {
+			db.all('SELECT id, name, email FROM users', (err, rows) => {
+				if (err) reject(err);
+				else resolve(rows);
+			});
+		});
+
+		// Get price tier breakdown for each user
+		const priceTierData = await Promise.all(
+			users.map(async (user) => {
+				const items = await ClothingItem.findByUserId(user.id);
+				
+				// Initialize tier counts
+				const tiers = {
+					budget: 0,    // < €30
+					midRange: 0,  // €30-100
+					premium: 0    // > €100
+				};
+				
+				// Count items by price tier
+				items.forEach(item => {
+					const price = parseFloat(item.price);
+					if (!isNaN(price)) {
+						if (price < 30) {
+							tiers.budget++;
+						} else if (price <= 100) {
+							tiers.midRange++;
+						} else {
+							tiers.premium++;
+						}
+					}
+				});
+				
+				const totalItems = tiers.budget + tiers.midRange + tiers.premium;
+				
+				return {
+					userId: user.id,
+					userName: user.name,
+					userEmail: user.email,
+					totalItems,
+					tiers,
+					percentages: totalItems > 0 ? {
+						budget: (tiers.budget / totalItems * 100).toFixed(1),
+						midRange: (tiers.midRange / totalItems * 100).toFixed(1),
+						premium: (tiers.premium / totalItems * 100).toFixed(1)
+					} : { budget: 0, midRange: 0, premium: 0 }
+				};
+			})
+		);
+
+		res.json(priceTierData);
+	} catch (error) {
+		console.error("Error fetching price tier data:", error);
+		res.status(500).json({ error: "Server error while fetching price tier data." });
+	}
+});
+
 module.exports = router;
