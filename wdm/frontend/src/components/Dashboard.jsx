@@ -54,6 +54,13 @@ const Dashboard = () => {
 		}
 	};
 
+	const triggerFileUpload = () => {
+		const fileInput = document.getElementById('image-upload');
+		if (fileInput) {
+			fileInput.click();
+		}
+	};
+
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({
@@ -67,6 +74,11 @@ const Dashboard = () => {
 
 		if (!imageFile) {
 			setMessage("Please select an image");
+			return;
+		}
+
+		if (!formData.category) {
+			setMessage("Please select a category");
 			return;
 		}
 
@@ -185,12 +197,20 @@ const Dashboard = () => {
 						)}
 
 						<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style={{ padding: "0 24px 24px" }}>
-							{/* Image Upload */}
-							<div>
-								<div className="relative">
-									<input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
+								{/* Image Upload */}
+								<div>
+									<input 
+										id="image-upload"
+										type="file" 
+										accept="image/*" 
+										onChange={handleImageUpload} 
+										style={{ display: 'none' }} 
+									/>
 
-									<div className={`rounded-xl border-2 border-dashed p-6 transition-all duration-200 ${imagePreview ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}>
+									<div 
+										onClick={triggerFileUpload}
+										className={`rounded-xl border-2 border-dashed p-6 transition-all duration-200 cursor-pointer ${imagePreview ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}
+									>
 										<div className="flex items-start gap-4">
 											{/* Preview (fixed size, left-aligned) */}
 											<div
@@ -223,13 +243,13 @@ const Dashboard = () => {
 
 											{/* Text */}
 											<div className="flex-1">
+												<p className="text-medium text-gray-900">{imagePreview ? "Click to change photo" : "Click to upload a photo"}</p>
 												<p className="text-small text-gray-500 mt-1">PNG, JPG up to 5MB</p>
 												<p className="text-xs text-gray-400 mt-3">Tip: upload a clear photo with the item centered.</p>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 
 							<div className="space-y-6">
 								{/* Details Grid */}
@@ -238,7 +258,7 @@ const Dashboard = () => {
 										<label htmlFor="category" className="form-label">
 											Category <span style={{ color: "#dc2626" }}>*</span>
 										</label>
-										<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field" required>
+										<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field">
 											<option value="">Select category</option>
 											<option value="tops">Tops</option>
 											<option value="bottoms">Bottoms</option>
