@@ -127,10 +127,7 @@ const Login = () => {
               className="btn-primary w-full"
             >
               {loading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="spinner w-3 h-3"></div>
-                  <span>Signing in...</span>
-                </div>
+                <span>Signing in...</span>
               ) : (
                 'Sign in'
               )}

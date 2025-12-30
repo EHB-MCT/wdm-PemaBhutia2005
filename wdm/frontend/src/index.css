@@ -352,19 +352,7 @@ body {
   padding: 0.75rem 1rem;
 }
 
-/* Loading Spinner */
-.spinner {
-  animation: spin 1s linear infinite;
-  border-radius: 50%;
-  border: 2px solid var(--color-gray-300);
-  border-top-color: #2563eb;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 /* Utilities */
 .text-balance {

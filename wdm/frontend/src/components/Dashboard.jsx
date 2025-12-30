@@ -125,7 +125,7 @@ const Dashboard = () => {
 		return (
 			<div className="page-container flex items-center justify-center">
 				<div className="text-center">
-					<div className="spinner w-8 h-8 mx-auto mb-4"></div>
+
 					<p className="text-body">Loading your wardrobe...</p>
 				</div>
 			</div>
@@ -294,10 +294,7 @@ const Dashboard = () => {
 
 								<button type="submit" disabled={submitting} className="btn-primary w-full">
 									{submitting ? (
-										<div className="flex items-center justify-center space-x-2">
-											<div className="spinner w-4 h-4"></div>
-											<span>Adding to wardrobe...</span>
-										</div>
+										<span>Adding to wardrobe...</span>
 									) : (
 										"Add to Wardrobe"
 									)}

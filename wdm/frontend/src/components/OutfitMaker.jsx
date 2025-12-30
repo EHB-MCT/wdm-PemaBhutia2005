@@ -121,7 +121,6 @@ const OutfitMaker = () => {
 		return (
 			<div className="page-container flex items-center justify-center">
 				<div className="text-center">
-					<div className="spinner w-5 h-5 mx-auto mb-4"></div>
 					<p className="text-body">Loading your wardrobe...</p>
 				</div>
 			</div>

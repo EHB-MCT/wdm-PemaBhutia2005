@@ -172,10 +172,7 @@ const Register = () => {
               className="btn-primary w-full"
             >
               {loading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="spinner w-3 h-3"></div>
-                  <span>Creating account...</span>
-                </div>
+                <span>Creating account...</span>
               ) : (
                 'Create account'
               )}
