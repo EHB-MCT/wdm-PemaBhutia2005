@@ -15,6 +15,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   // Color coding for social status
   const getSocialStatusColor = (status) => {
@@ -31,15 +32,28 @@ const AdminDashboard = () => {
   // Register Chart.js components
   ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, BubbleController, PointElement);
 
+  // Filter data by selected user
+  const getFilteredHistogramData = () => {
+    if (!selectedUserId) return histogramData;
+    const userHistogram = histogramData.map(d => {
+      const userSpecific = d.users?.find(u => u.userId === selectedUserId);
+      return {
+        label: d.label,
+        count: userSpecific?.count || 0
+      };
+    });
+    return userHistogram;
+  };
+
   // Chart data
   const chartData = {
-    labels: histogramData.map(d => d.label),
+    labels: getFilteredHistogramData().map(d => d.label),
     datasets: [
       {
-        label: 'Photos Taken',
-        data: histogramData.map(d => d.count),
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        label: selectedUserId ? `Photos Taken by ${usersWithItems.find(u => u.id === selectedUserId)?.name || 'User'}` : 'Photos Taken',
+        data: getFilteredHistogramData().map(d => d.count),
+        backgroundColor: selectedUserId ? 'rgba(139, 92, 246, 0.8)' : 'rgba(59, 130, 246, 0.8)',
+        borderColor: selectedUserId ? 'rgba(139, 92, 246, 1)' : 'rgba(59, 130, 246, 1)',
         borderWidth: 1,
       },
     ],
@@ -140,26 +154,31 @@ const AdminDashboard = () => {
   };
 
   // Price tier chart configuration
+  const getFilteredPriceTierData = () => {
+    if (!selectedUserId) return priceTierData;
+    return priceTierData.filter(user => user.userId === selectedUserId);
+  };
+
   const priceTierChartData = {
-    labels: priceTierData.map(user => user.userName),
+    labels: getFilteredPriceTierData().map(user => user.userName),
     datasets: [
       {
         label: 'Budget (<$30)',
-        data: priceTierData.map(user => user.percentages?.budget || 0),
+        data: getFilteredPriceTierData().map(user => user.percentages?.budget || 0),
         backgroundColor: '#10b981',
         borderColor: '#059669',
         borderWidth: 1,
       },
       {
         label: 'Mid-range ($30-$100)',
-        data: priceTierData.map(user => user.percentages?.midRange || 0),
+        data: getFilteredPriceTierData().map(user => user.percentages?.midRange || 0),
         backgroundColor: '#3b82f6',
         borderColor: '#1d4ed8',
         borderWidth: 1,
       },
       {
         label: 'Premium (>$100)',
-        data: priceTierData.map(user => user.percentages?.premium || 0),
+        data: getFilteredPriceTierData().map(user => user.percentages?.premium || 0),
         backgroundColor: '#f59e0b',
         borderColor: '#d97706',
         borderWidth: 1,
@@ -219,7 +238,11 @@ const AdminDashboard = () => {
 
   // Bubble Chart: Wardrobe Value vs. Item Count
   const getBubbleChartData = () => {
-    const bubbleData = usersWithItems.map(user => {
+    const filteredUsers = selectedUserId 
+      ? usersWithItems.filter(user => user.id === selectedUserId)
+      : usersWithItems;
+    
+    const bubbleData = filteredUsers.map(user => {
       const items = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
       const itemCount = items.length;
       const totalValue = items.reduce((sum, item) => sum + parseFloat(item.price), 0);
@@ -365,6 +388,14 @@ const AdminDashboard = () => {
     },
   };
 
+  const filteredLocationData = selectedUserId
+    ? locationData.filter(user => user.userId === selectedUserId)
+    : locationData;
+
+  const handleUserSelect = (userId) => {
+    setSelectedUserId(userId === selectedUserId ? null : userId);
+  };
+
   const formatExifData = (item) => {
     const exifFields = [];
     
@@ -436,73 +467,155 @@ const AdminDashboard = () => {
       </div>
 
       {/* Content */}
-      <main className="container py-8">
+      <main className="container py-8" style={{ display: "flex", gap: "2rem" }}>
         {error && (
-          <div className="status-error mb-6">
+          <div className="status-error mb-6" style={{ gridColumn: "1 / -1" }}>
             {error}
           </div>
         )}
 
         {usersWithItems.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16" style={{ gridColumn: "1 / -1" }}>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
             <p className="text-body">No users have registered yet.</p>
           </div>
         ) : (
-          <div>
-            {/* Summary Stats */}
-            <div style={{ 
-              display: "grid", 
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
-              gap: "1rem", 
-              marginBottom: "2rem" 
-            }}>
-              <div className="card">
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Total Users</p>
-                  <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
-                    {usersWithItems.length}
-                  </p>
+          <>
+            {/* Sidebar */}
+            <aside style={{ width: "300px", flexShrink: 0 }}>
+              <div className="card" style={{ padding: "1rem" }}>
+                <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
+                  👥 Users
+                </h3>
+                {selectedUserId && (
+                  <button
+                    onClick={() => setSelectedUserId(null)}
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      marginBottom: "1rem",
+                      backgroundColor: "#f3f4f6",
+                      border: "1px solid #d1d5db",
+                      borderRadius: "0.375rem",
+                      cursor: "pointer",
+                      fontSize: "0.875rem"
+                    }}
+                  >
+                    ← Show All Users
+                  </button>
+                )}
+                <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+                  {usersWithItems.map((user) => {
+                    const isSelected = user.id === selectedUserId;
+                    const itemsWithPrice = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                    const totalValue = itemsWithPrice.reduce((sum, item) => sum + parseFloat(item.price), 0);
+                    
+                    return (
+                      <div
+                        key={user.id}
+                        onClick={() => handleUserSelect(user.id)}
+                        style={{
+                          padding: "0.75rem",
+                          marginBottom: "0.5rem",
+                          border: isSelected ? "2px solid #8b5cf6" : "1px solid #e5e7eb",
+                          borderRadius: "0.375rem",
+                          cursor: "pointer",
+                          backgroundColor: isSelected ? "#f3f0ff" : "white",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        <div style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
+                          {user.name}
+                        </div>
+                        <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                          {user.items.length} items • ${totalValue.toFixed(0)}
+                        </div>
+                        {itemsWithPrice.length > 0 && (
+                          <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                            Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            <div className="card">
-              <div style={{ textAlign: "center" }}>
-                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Total Items</p>
-                <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
-                  {usersWithItems.reduce((sum, user) => sum + user.items.length, 0)}
-                </p>
-              </div>
-            </div>
-            <div className="card">
-              <div style={{ textAlign: "center" }}>
-                <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Avg Item Price</p>
-                <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
-                  ${(() => {
-                    const usersWithValidItems = usersWithItems.filter(user => user.items.length > 0);
-                    if (usersWithValidItems.length === 0) return '0.0';
-                    
-                    const totalAverage = usersWithItems.reduce((sum, user) => {
-                      const validPrices = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
-                      if (validPrices.length === 0) return sum;
-                      const userAvg = validPrices.reduce((itemSum, item) => itemSum + parseFloat(item.price), 0) / validPrices.length;
-                      return sum + userAvg;
-                    }, 0);
-                    
-                    return (totalAverage / usersWithValidItems.length).toFixed(1);
-                  })()}
-                </p>
-              </div>
-            </div>
-              <div className="card">
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Items with GPS</p>
-                  <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
-                    {usersWithItems.reduce((sum, user) => 
-                      sum + user.items.filter(item => item.gps_lat && item.gps_lon).length, 0
-                    )}
-                  </p>
+            </aside>
+
+            {/* Main Content */}
+            <div style={{ flex: 1 }}>
+              {/* Summary Stats */}
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
+                gap: "1rem", 
+                marginBottom: "2rem" 
+              }}>
+                <div className="card">
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                      {selectedUserId ? "Selected User" : "Total Users"}
+                    </p>
+                    <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
+                      {selectedUserId ? 1 : usersWithItems.length}
+                    </p>
+                  </div>
                 </div>
-              </div>
+                <div className="card">
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Total Items</p>
+                    <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
+                      {selectedUserId 
+                        ? usersWithItems.find(u => u.id === selectedUserId)?.items.length || 0
+                        : usersWithItems.reduce((sum, user) => sum + user.items.length, 0)
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div className="card">
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Avg Item Price</p>
+                    <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
+                      ${(() => {
+                        const relevantUsers = selectedUserId 
+                          ? usersWithItems.filter(u => u.id === selectedUserId)
+                          : usersWithItems;
+                        
+                        const usersWithValidItems = relevantUsers.filter(user => {
+                          const validPrices = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                          return validPrices.length > 0;
+                        });
+                        
+                        if (usersWithValidItems.length === 0) return '0.0';
+                        
+                        const totalAverage = usersWithValidItems.reduce((sum, user) => {
+                          const validPrices = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                          if (validPrices.length === 0) return sum;
+                          const userAvg = validPrices.reduce((itemSum, item) => itemSum + parseFloat(item.price), 0) / validPrices.length;
+                          return sum + userAvg;
+                        }, 0);
+                        
+                        return (totalAverage / usersWithValidItems.length).toFixed(1);
+                      })()}
+                    </p>
+                  </div>
+                </div>
+                <div className="card">
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Items with GPS</p>
+                    <p style={{ fontSize: "2rem", fontWeight: "600", color: "#111827" }}>
+                      {(() => {
+                        const relevantUsers = selectedUserId 
+                          ? usersWithItems.filter(u => u.id === selectedUserId)
+                          : usersWithItems;
+                        
+                        return relevantUsers.reduce((sum, user) => 
+                          sum + user.items.filter(item => item.gps_lat && item.gps_lon).length, 0
+                        );
+                      })()}
+                    </p>
+                  </div>
+                </div>
             </div>
 
             {/* Photo Hour Histogram */}
@@ -619,7 +732,7 @@ const AdminDashboard = () => {
                   🗺 User Locations Worldwide
                 </h2>
                 <div style={{ height: "500px", position: "relative", borderRadius: "0.5rem", overflow: "hidden" }}>
-                  {locationData.length > 0 ? (
+                  {filteredLocationData.length > 0 ? (
                     <MapContainer 
                       center={[20, 0]} 
                       zoom={2} 
@@ -631,7 +744,7 @@ const AdminDashboard = () => {
                       />
                       
                       {/* User centroids with circles showing activity density */}
-                      {locationData.filter(user => user.centroid).map(user => (
+                      {filteredLocationData.filter(user => user.centroid).map(user => (
                         <Circle
                           key={`centroid-${user.userId}`}
                           center={[user.centroid.lat, user.centroid.lng]}
@@ -643,7 +756,7 @@ const AdminDashboard = () => {
                       ))}
                       
                       {/* Individual photo markers */}
-                      {locationData.map(user => (
+                      {filteredLocationData.map(user => (
                         <div key={user.userId}>
                           {user.items.map((item, index) => (
                             <Marker
@@ -693,173 +806,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Users List */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {usersWithItems.map((user) => (
-                <div key={user.id} className="card">
-                  {/* User Header */}
-                  <div 
-                    style={{ 
-                      display: "flex", 
-                      justifyContent: "space-between", 
-                      alignItems: "center",
-                      cursor: "pointer",
-                      padding: "1rem"
-                    }}
-                    onClick={() => toggleUserExpansion(user.id)}
-                  >
-                    <div>
-                      <h3 style={{ fontSize: "1.125rem", fontWeight: "600", color: "#111827", margin: "0" }}>
-                        {user.name}
-                      </h3>
-                      <p style={{ fontSize: "0.875rem", color: "#6b7280", margin: "0.25rem 0 0.25rem 0" }}>
-                        {user.email} • {user.items.length} items
-                      </p>
-                      {user.priceStats && (
-                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                          <span style={{ 
-                            padding: "2px 8px", 
-                            borderRadius: "9999px", 
-                            fontSize: "12px",
-                            fontWeight: "500",
-                            backgroundColor: getSocialStatusColor(user.priceStats.socialStatus),
-                            color: "white"
-                          }}>
-                            {user.priceStats.socialStatus}
-                          </span>
-                          <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                            Avg: ${user.priceStats.averagePrice}
-                          </span>
-                          {user.priceStats.totalItems > 0 && (
-                            <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                              Total: ${user.priceStats.totalPrice}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      style={{
-                        padding: "0.5rem",
-                        backgroundColor: "#f3f4f6",
-                        border: "1px solid #d1d5db",
-                        borderRadius: "0.375rem",
-                        cursor: "pointer",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      {expandedUsers.has(user.id) ? "▼" : "▶"}
-                    </button>
-                  </div>
-
-                  {/* User Items (expanded) */}
-                  {expandedUsers.has(user.id) && user.items.length > 0 && (
-                    <div style={{ 
-                      borderTop: "1px solid #e5e7eb", 
-                      padding: "1rem",
-                      backgroundColor: "#f9fafb"
-                    }}>
-                      <div style={{ display: "grid", gap: "1rem" }}>
-                        {user.items.map((item) => {
-                          const exifData = formatExifData(item);
-                          return (
-                            <div key={item.id} style={{ 
-                              border: "1px solid #e5e7eb", 
-                              borderRadius: "0.5rem", 
-                              padding: "1rem",
-                              backgroundColor: "white"
-                            }}>
-                              <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                                {/* Thumbnail */}
-                                {item.image_path && (
-                                  <div style={{
-                                    width: "80px",
-                                    height: "80px",
-                                    borderRadius: "0.375rem",
-                                    overflow: "hidden",
-                                    backgroundColor: "#f3f4f6",
-                                    flexShrink: 0
-                                  }}>
-                                    <img
-                                      src={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${item.image_path}`}
-                                      alt="Clothing item"
-                                      style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover"
-                                      }}
-                                    />
-                                  </div>
-                                )}
-                                
-                                {/* Item Details */}
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ marginBottom: "0.5rem" }}>
-                                    <span style={{ 
-                                      padding: "2px 8px", 
-                                      borderRadius: "9999px", 
-                                      backgroundColor: "#8b5cf6", 
-                                      color: "white",
-                                      fontSize: "12px",
-                                      fontWeight: "500"
-                                    }}>
-                                      {item.category || "uncategorized"}
-                                    </span>
-                                    {item.brand && (
-                                      <span style={{ 
-                                        marginLeft: "0.5rem",
-                                        fontSize: "14px",
-                                        color: "#374151",
-                                        fontWeight: "500"
-                                      }}>
-                                        {item.brand}
-                                      </span>
-                                    )}
-                                  </div>
-                                  
-                                  {/* EXIF Data */}
-                                  {exifData.length > 0 && (
-                                    <div style={{ 
-                                      display: "flex", 
-                                      flexWrap: "wrap", 
-                                      gap: "0.75rem",
-                                      fontSize: "12px",
-                                      color: "#6b7280"
-                                    }}>
-                                      {exifData.map((field, index) => (
-                                        <div key={index} style={{ 
-                                          display: "flex", 
-                                          alignItems: "center", 
-                                          gap: "0.25rem" 
-                                        }}>
-                                          {field.icon}
-                                          <span style={{ color: "#374151", fontWeight: "500" }}>
-                                            {field.label}:
-                                          </span>
-                                          <span>{field.value}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                  
-                                  {exifData.length === 0 && (
-                                    <p style={{ fontSize: "12px", color: "#9ca3af" }}>
-                                      No EXIF data available
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
             </div>
-          </div>
+          </>
         )}
       </main>
     </div>
