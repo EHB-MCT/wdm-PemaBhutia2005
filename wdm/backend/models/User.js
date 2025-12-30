@@ -3,21 +3,21 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
 class User {
-  static async create(name, email, password) {
+  static async create(name, email, password, isAdmin = false) {
     const userId = uuidv4();
     const hashedPassword = await bcrypt.hash(password, 10);
     
     return new Promise((resolve, reject) => {
       const query = `
-        INSERT INTO users (id, name, email, password)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO users (id, name, email, password, is_admin)
+        VALUES (?, ?, ?, ?, ?)
       `;
       
-      db.run(query, [userId, name, email, hashedPassword], function(err) {
+      db.run(query, [userId, name, email, hashedPassword, isAdmin], function(err) {
         if (err) {
           reject(err);
         } else {
-          resolve({ id: userId, name, email });
+          resolve({ id: userId, name, email, is_admin: isAdmin });
         }
       });
     });
@@ -35,6 +35,10 @@ class User {
         }
       });
     });
+  }
+
+  static async createAdmin(name, email, password) {
+    return await this.create(name, email, password, true);
   }
 
   static async findById(id) {

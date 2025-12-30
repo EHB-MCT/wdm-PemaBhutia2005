@@ -24,6 +24,7 @@ db.serialize(() => {
       name TEXT NOT NULL,
       email UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      is_admin BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -63,6 +64,7 @@ db.serialize(() => {
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      is_admin BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -119,6 +121,15 @@ db.serialize(() => {
         console.log(`${colName} column already exists or error adding it:`, err.message);
       }
     });
+  });
+
+  // Add is_admin column if it doesn't exist (for existing databases)
+  db.run(`
+    ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0
+  `, (err) => {
+    if (err && !err.message.includes('duplicate column name')) {
+      console.log('is_admin column already exists or error adding it:', err.message);
+    }
   });
 
   // Create outfits table
