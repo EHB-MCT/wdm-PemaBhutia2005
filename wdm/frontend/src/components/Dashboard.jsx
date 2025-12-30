@@ -81,7 +81,7 @@ const Dashboard = () => {
 		formDataToSend.append("size", formData.size);
 		formDataToSend.append("category", formData.category);
 
-			try {
+		try {
 			const newItem = await clothingAPI.create(formDataToSend);
 			setItems([newItem, ...items]);
 
@@ -128,28 +128,32 @@ const Dashboard = () => {
 		if (!showAddModal) return null;
 
 		return (
-			<div style={{
-				position: "fixed",
-				top: 0,
-				left: 0,
-				right: 0,
-				bottom: 0,
-				backgroundColor: "rgba(0, 0, 0, 0.5)",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				zIndex: 1000,
-				padding: "20px"
-			}}>
-				<div style={{
-					background: "white",
-					borderRadius: "16px",
-					maxWidth: "800px",
-					width: "100%",
-					maxHeight: "90vh",
-					overflowY: "auto",
-					position: "relative"
-				}}>
+			<div
+				style={{
+					position: "fixed",
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					backgroundColor: "rgba(0, 0, 0, 0.5)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					zIndex: 1000,
+					padding: "20px",
+				}}
+			>
+				<div
+					style={{
+						background: "white",
+						borderRadius: "16px",
+						maxWidth: "800px",
+						width: "100%",
+						maxHeight: "90vh",
+						overflowY: "auto",
+						position: "relative",
+					}}
+				>
 					{/* Close button */}
 					<button
 						onClick={() => setShowAddModal(false)}
@@ -162,7 +166,7 @@ const Dashboard = () => {
 							fontSize: "24px",
 							cursor: "pointer",
 							color: "#6b7280",
-							zIndex: 1
+							zIndex: 1,
 						}}
 					>
 						×
@@ -174,7 +178,11 @@ const Dashboard = () => {
 							<p className="text-body">Upload a photo to start organizing your wardrobe</p>
 						</div>
 
-						{message && <div className={`mb-6 animate-slide-up ${message.includes("success") ? "status-success" : "status-error"}`} style={{ margin: "0 24px" }}>{message}</div>}
+						{message && (
+							<div className={`mb-6 animate-slide-up ${message.includes("success") ? "status-success" : "status-error"}`} style={{ margin: "0 24px" }}>
+								{message}
+							</div>
+						)}
 
 						<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style={{ padding: "0 24px 24px" }}>
 							{/* Image Upload */}
@@ -215,7 +223,6 @@ const Dashboard = () => {
 
 											{/* Text */}
 											<div className="flex-1">
-												<p className="text-medium text-gray-900">{imagePreview ? "Click to change photo" : "Click to upload a photo"}</p>
 												<p className="text-small text-gray-500 mt-1">PNG, JPG up to 5MB</p>
 												<p className="text-xs text-gray-400 mt-3">Tip: upload a clear photo with the item centered.</p>
 											</div>
@@ -227,6 +234,21 @@ const Dashboard = () => {
 							<div className="space-y-6">
 								{/* Details Grid */}
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+									<div className="form-group">
+										<label htmlFor="category" className="form-label">
+											Category <span style={{ color: "#dc2626" }}>*</span>
+										</label>
+										<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field" required>
+											<option value="">Select category</option>
+											<option value="tops">Tops</option>
+											<option value="bottoms">Bottoms</option>
+											<option value="shoes">Shoes</option>
+											<option value="sweaters">Sweaters</option>
+											<option value="jackets">Jackets</option>
+											<option value="accessories">Accessories</option>
+										</select>
+									</div>
+
 									<div className="form-group">
 										<label htmlFor="brand" className="form-label">
 											Brand
@@ -268,21 +290,6 @@ const Dashboard = () => {
 											<option value="XXL">XXL</option>
 										</select>
 									</div>
-
-									<div className="form-group">
-										<label htmlFor="category" className="form-label">
-											Category
-										</label>
-										<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field">
-											<option value="">Select category</option>
-											<option value="tops">Tops</option>
-											<option value="bottoms">Bottoms</option>
-											<option value="shoes">Shoes</option>
-											<option value="sweaters">Sweaters</option>
-											<option value="jackets">Jackets</option>
-											<option value="accessories">Accessories</option>
-										</select>
-									</div>
 								</div>
 							</div>
 
@@ -299,17 +306,13 @@ const Dashboard = () => {
 										fontSize: "14px",
 										fontWeight: "500",
 										cursor: "pointer",
-										transition: "all 200ms ease-in-out"
+										transition: "all 200ms ease-in-out",
 									}}
 								>
 									Cancel
 								</button>
 								<button type="submit" disabled={submitting} className="btn-primary">
-									{submitting ? (
-										<span>Adding to wardrobe...</span>
-									) : (
-										"Add to Wardrobe"
-									)}
+									{submitting ? <span>Adding to wardrobe...</span> : "Add to Wardrobe"}
 								</button>
 							</div>
 						</form>
@@ -323,7 +326,6 @@ const Dashboard = () => {
 		return (
 			<div className="page-container flex items-center justify-center">
 				<div className="text-center">
-
 					<p className="text-body">Loading your wardrobe...</p>
 				</div>
 			</div>
@@ -333,7 +335,7 @@ const Dashboard = () => {
 	return (
 		<div className="page-container">
 			<Navigation />
-			
+
 			{/* Page Header */}
 			<div style={{ backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
 				<div className="container" style={{ padding: "1.5rem 0" }}>
@@ -344,17 +346,17 @@ const Dashboard = () => {
 						</div>
 						<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
 							<button
-								onClick={() => navigate('/outfit-maker')}
+								onClick={() => navigate("/outfit-maker")}
 								style={{
-									padding: '0.625rem 1rem',
-									backgroundColor: '#3b82f6',
-									color: 'white',
-									border: 'none',
-									borderRadius: '0.5rem',
-									fontSize: '0.875rem',
-									fontWeight: '500',
-									cursor: 'pointer',
-									transition: 'all 200ms ease-in-out'
+									padding: "0.625rem 1rem",
+									backgroundColor: "#3b82f6",
+									color: "white",
+									border: "none",
+									borderRadius: "0.5rem",
+									fontSize: "0.875rem",
+									fontWeight: "500",
+									cursor: "pointer",
+									transition: "all 200ms ease-in-out",
 								}}
 							>
 								Outfit Maker
@@ -377,15 +379,15 @@ const Dashboard = () => {
 							onClick={() => setShowAddModal(true)}
 							className="btn-primary mt-6"
 							style={{
-								padding: '12px 24px',
-								backgroundColor: '#3b82f6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '14px',
-								fontWeight: '500',
-								cursor: 'pointer',
-								transition: 'all 200ms ease-in-out'
+								padding: "12px 24px",
+								backgroundColor: "#3b82f6",
+								color: "white",
+								border: "none",
+								borderRadius: "8px",
+								fontSize: "14px",
+								fontWeight: "500",
+								cursor: "pointer",
+								transition: "all 200ms ease-in-out",
 							}}
 						>
 							Add Your First Item
