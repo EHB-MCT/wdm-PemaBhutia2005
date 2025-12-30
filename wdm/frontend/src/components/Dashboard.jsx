@@ -20,6 +20,7 @@ const Dashboard = () => {
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
 	const [message, setMessage] = useState("");
+	const [showAddModal, setShowAddModal] = useState(false);
 
 	const { user, logout } = useAuth();
 	const navigate = useNavigate();
@@ -80,7 +81,7 @@ const Dashboard = () => {
 		formDataToSend.append("size", formData.size);
 		formDataToSend.append("category", formData.category);
 
-		try {
+			try {
 			const newItem = await clothingAPI.create(formDataToSend);
 			setItems([newItem, ...items]);
 
@@ -89,6 +90,7 @@ const Dashboard = () => {
 			setImageFile(null);
 			setImagePreview(null);
 			setMessage("Item added successfully!");
+			setShowAddModal(false);
 
 			// Clear message after 3 seconds
 			setTimeout(() => setMessage(""), 3000);
@@ -119,6 +121,202 @@ const Dashboard = () => {
 	const handleLogout = () => {
 		logout();
 		navigate("/login");
+	};
+
+	// Add Item Modal Component
+	const AddItemModal = () => {
+		if (!showAddModal) return null;
+
+		return (
+			<div style={{
+				position: "fixed",
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				backgroundColor: "rgba(0, 0, 0, 0.5)",
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+				zIndex: 1000,
+				padding: "20px"
+			}}>
+				<div style={{
+					background: "white",
+					borderRadius: "16px",
+					maxWidth: "800px",
+					width: "100%",
+					maxHeight: "90vh",
+					overflowY: "auto",
+					position: "relative"
+				}}>
+					{/* Close button */}
+					<button
+						onClick={() => setShowAddModal(false)}
+						style={{
+							position: "absolute",
+							top: "16px",
+							right: "16px",
+							background: "none",
+							border: "none",
+							fontSize: "24px",
+							cursor: "pointer",
+							color: "#6b7280",
+							zIndex: 1
+						}}
+					>
+						×
+					</button>
+
+					<div className="card" style={{ border: "none", boxShadow: "none" }}>
+						<div className="text-center mb-8" style={{ paddingTop: "32px" }}>
+							<h2 className="text-subheading mb-2">Add New Item</h2>
+							<p className="text-body">Upload a photo to start organizing your wardrobe</p>
+						</div>
+
+						{message && <div className={`mb-6 animate-slide-up ${message.includes("success") ? "status-success" : "status-error"}`} style={{ margin: "0 24px" }}>{message}</div>}
+
+						<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style={{ padding: "0 24px 24px" }}>
+							{/* Image Upload */}
+							<div>
+								<div className="relative">
+									<input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
+
+									<div className={`rounded-xl border-2 border-dashed p-6 transition-all duration-200 ${imagePreview ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}>
+										<div className="flex items-start gap-4">
+											{/* Preview (fixed size, left-aligned) */}
+											<div
+												style={{
+													width: "128px",
+													height: "128px",
+													overflow: "hidden",
+													borderRadius: "12px",
+													background: "#e5e7eb",
+													flexShrink: 0,
+												}}
+											>
+												{imagePreview ? (
+													<img
+														src={imagePreview}
+														alt="Preview"
+														style={{
+															width: "100%",
+															height: "100%",
+															objectFit: "cover",
+															display: "block",
+														}}
+													/>
+												) : (
+													<div className="w-full h-full flex items-center justify-center">
+														<FiPlus className="text-gray-400" size={20} />
+													</div>
+												)}
+											</div>
+
+											{/* Text */}
+											<div className="flex-1">
+												<p className="text-medium text-gray-900">{imagePreview ? "Click to change photo" : "Click to upload a photo"}</p>
+												<p className="text-small text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+												<p className="text-xs text-gray-400 mt-3">Tip: upload a clear photo with the item centered.</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div className="space-y-6">
+								{/* Details Grid */}
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+									<div className="form-group">
+										<label htmlFor="brand" className="form-label">
+											Brand
+										</label>
+										<input id="brand" name="brand" type="text" value={formData.brand} onChange={handleChange} placeholder="e.g. Nike, Zara" className="input-field" />
+									</div>
+
+									<div className="form-group">
+										<label htmlFor="price" className="form-label">
+											Price
+										</label>
+										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" />
+									</div>
+
+									<div className="form-group">
+										<label htmlFor="season" className="form-label">
+											Season
+										</label>
+										<select id="season" name="season" value={formData.season} onChange={handleChange} className="input-field">
+											<option value="">Select season</option>
+											<option value="Spring">Spring</option>
+											<option value="Summer">Summer</option>
+											<option value="Fall">Fall</option>
+											<option value="Winter">Winter</option>
+										</select>
+									</div>
+
+									<div className="form-group">
+										<label htmlFor="size" className="form-label">
+											Size
+										</label>
+										<select id="size" name="size" value={formData.size} onChange={handleChange} className="input-field">
+											<option value="">Select size</option>
+											<option value="XS">XS</option>
+											<option value="S">S</option>
+											<option value="M">M</option>
+											<option value="L">L</option>
+											<option value="XL">XL</option>
+											<option value="XXL">XXL</option>
+										</select>
+									</div>
+
+									<div className="form-group">
+										<label htmlFor="category" className="form-label">
+											Category
+										</label>
+										<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field">
+											<option value="">Select category</option>
+											<option value="tops">Tops</option>
+											<option value="bottoms">Bottoms</option>
+											<option value="shoes">Shoes</option>
+											<option value="sweaters">Sweaters</option>
+											<option value="jackets">Jackets</option>
+											<option value="accessories">Accessories</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-2 gap-4" style={{ gridColumn: "1 / -1" }}>
+								<button
+									type="button"
+									onClick={() => setShowAddModal(false)}
+									style={{
+										padding: "12px 24px",
+										backgroundColor: "#f3f4f6",
+										color: "#374151",
+										border: "none",
+										borderRadius: "8px",
+										fontSize: "14px",
+										fontWeight: "500",
+										cursor: "pointer",
+										transition: "all 200ms ease-in-out"
+									}}
+								>
+									Cancel
+								</button>
+								<button type="submit" disabled={submitting} className="btn-primary">
+									{submitting ? (
+										<span>Adding to wardrobe...</span>
+									) : (
+										"Add to Wardrobe"
+									)}
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		);
 	};
 
 	if (loading) {
@@ -171,147 +369,32 @@ const Dashboard = () => {
 			</div>
 
 			<main className="container py-8">
-				{/* Add Item Section */}
-				<section className="mb-12">
-					<div className="text-center mb-8">
-						<h2 className="text-subheading mb-2">Add New Item</h2>
-						<p className="text-body">Upload a photo to start organizing your wardrobe</p>
+				{items.length === 0 ? (
+					<div className="text-center py-16">
+						<h3 className="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
+						<p className="text-body text-center max-w-md mx-auto">Start building your wardrobe by adding your first clothing item.</p>
+						<button
+							onClick={() => setShowAddModal(true)}
+							className="btn-primary mt-6"
+							style={{
+								padding: '12px 24px',
+								backgroundColor: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '14px',
+								fontWeight: '500',
+								cursor: 'pointer',
+								transition: 'all 200ms ease-in-out'
+							}}
+						>
+							Add Your First Item
+						</button>
 					</div>
-
-					<div className="max-w-2xl mx-auto">
-						<div className="card p-8">
-							{message && <div className={`mb-6 animate-slide-up ${message.includes("success") ? "status-success" : "status-error"}`}>{message}</div>}
-
-							<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-								{/* Image Upload */}
-								<div>
-									<div className="relative">
-										<input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
-
-										<div className={`rounded-xl border-2 border-dashed p-6 transition-all duration-200 ${imagePreview ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}>
-											<div className="flex items-start gap-4">
-												{/* Preview (fixed size, left-aligned) */}
-												<div
-													style={{
-														width: "128px",
-														height: "128px",
-														overflow: "hidden",
-														borderRadius: "12px",
-														background: "#e5e7eb",
-														flexShrink: 0,
-													}}
-												>
-													{imagePreview ? (
-														<img
-															src={imagePreview}
-															alt="Preview"
-															style={{
-																width: "100%",
-																height: "100%",
-																objectFit: "cover",
-																display: "block",
-															}}
-														/>
-													) : (
-														<div className="w-full h-full flex items-center justify-center">
-															<FiPlus className="text-gray-400" size={20} />
-														</div>
-													)}
-												</div>
-
-												{/* Text */}
-												<div className="flex-1">
-													<p className="text-medium text-gray-900">{imagePreview ? "Click to change photo" : "Click to upload a photo"}</p>
-													<p className="text-small text-gray-500 mt-1">PNG, JPG up to 5MB</p>
-													<p className="text-xs text-gray-400 mt-3">Tip: upload a clear photo with the item centered.</p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div className="space-y-6">
-									{/* Details Grid */}
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-										<div className="form-group">
-											<label htmlFor="brand" className="form-label">
-												Brand
-											</label>
-											<input id="brand" name="brand" type="text" value={formData.brand} onChange={handleChange} placeholder="e.g. Nike, Zara" className="input-field" />
-										</div>
-
-										<div className="form-group">
-											<label htmlFor="price" className="form-label">
-												Price
-											</label>
-											<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" />
-										</div>
-
-										<div className="form-group">
-											<label htmlFor="season" className="form-label">
-												Season
-											</label>
-											<select id="season" name="season" value={formData.season} onChange={handleChange} className="input-field">
-												<option value="">Select season</option>
-												<option value="Spring">Spring</option>
-												<option value="Summer">Summer</option>
-												<option value="Fall">Fall</option>
-												<option value="Winter">Winter</option>
-											</select>
-										</div>
-
-										<div className="form-group">
-											<label htmlFor="size" className="form-label">
-												Size
-											</label>
-											<select id="size" name="size" value={formData.size} onChange={handleChange} className="input-field">
-												<option value="">Select size</option>
-												<option value="XS">XS</option>
-												<option value="S">S</option>
-												<option value="M">M</option>
-												<option value="L">L</option>
-												<option value="XL">XL</option>
-												<option value="XXL">XXL</option>
-											</select>
-										</div>
-
-										<div className="form-group">
-											<label htmlFor="category" className="form-label">
-												Category
-											</label>
-											<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field">
-												<option value="">Select category</option>
-												<option value="tops">Tops</option>
-												<option value="bottoms">Bottoms</option>
-												<option value="shoes">Shoes</option>
-												<option value="sweaters">Sweaters</option>
-												<option value="jackets">Jackets</option>
-												<option value="accessories">Accessories</option>
-											</select>
-										</div>
-									</div>
-								</div>
-
-								<button type="submit" disabled={submitting} className="btn-primary w-full">
-									{submitting ? (
-										<span>Adding to wardrobe...</span>
-									) : (
-										"Add to Wardrobe"
-									)}
-								</button>
-							</form>
-						</div>
-					</div>
-				</section>
-
-				{/* Items Grid */}
-				<section>
-					<div className="text-center mb-8">
-						<h2 className="text-subheading mb-2">Your Wardrobe</h2>
-						<p className="text-body">Manage your clothing collection</p>
-
+				) : (
+					<div>
 						{/* Category Filter */}
-						<div style={{ marginBottom: "24px", display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "8px" }}>
+						<div style={{ marginBottom: "32px", display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "8px" }}>
 							<button
 								onClick={() => setSelectedCategory("all")}
 								style={{
@@ -425,19 +508,13 @@ const Dashboard = () => {
 								Accessories
 							</button>
 						</div>
-					</div>
 
-					{items.length === 0 ? (
-						<div className="text-center py-16">
-							<h3 className="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
-							<p className="text-body text-center max-w-md mx-auto">Start building your wardrobe by adding your first clothing item above.</p>
-						</div>
-					) : (
+						{/* Items Grid */}
 						<div
 							style={{
 								display: "grid",
-								gridTemplateColumns: "repeat(5, 1fr)",
-								gap: "16px",
+								gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+								gap: "20px",
 								maxWidth: "1280px",
 								margin: "0 auto",
 							}}
@@ -453,64 +530,96 @@ const Dashboard = () => {
 											width: "100%",
 										}}
 									>
-										<div style={{ display: "flex" }}>
-											{item.image_path && (
-												<div
-													style={{
-														width: "150px",
-														height: "150px",
-														overflow: "hidden",
-														borderRadius: "12px 0 0 12px",
-														backgroundColor: "#f3f4f6",
-														flexShrink: "0",
-													}}
-												>
-													<img
-														src={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${item.image_path}`}
-														alt="Clothing item"
-														style={{
-															width: "150px",
-															height: "150px",
-															objectFit: "cover",
-														}}
-													/>
-												</div>
-											)}
-											<div style={{ flex: "1", padding: "16px" }}>
-												<div style={{ marginBottom: "12px" }}>
-													{item.brand && <p style={{ fontSize: "14px", fontWeight: "500", color: "#111827", margin: "0 0 4px 0" }}>{item.brand}</p>}
-													<div style={{ display: "flex", flexWrap: "wrap", gap: "4px", fontSize: "12px" }}>
-														{item.price && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#f3f4f6", color: "#374151" }}>${item.price}</span>}
-														{item.season && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#dbeafe", color: "#1e40af" }}>{item.season}</span>}
-														{item.size && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#d1fae5", color: "#065f46" }}>{item.size}</span>}
-														{item.category && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#8b5cf6", color: "white" }}>{item.category}</span>}
-													</div>
-												</div>
-												<button
-													onClick={() => handleDelete(item.id)}
+										{item.image_path && (
+											<div
+												style={{
+													width: "100%",
+													height: "200px",
+													overflow: "hidden",
+													borderRadius: "12px 12px 0 0",
+													backgroundColor: "#f3f4f6",
+												}}
+											>
+												<img
+													src={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${item.image_path}`}
+													alt="Clothing item"
 													style={{
 														width: "100%",
-														padding: "8px 16px",
-														backgroundColor: "#dc2626",
-														color: "white",
-														border: "none",
-														borderRadius: "8px",
-														fontSize: "14px",
-														fontWeight: "500",
-														cursor: "pointer",
-														transition: "background-color 0.2s",
+														height: "100%",
+														objectFit: "cover",
 													}}
-												>
-													Remove
-												</button>
+												/>
 											</div>
+										)}
+										<div style={{ padding: "16px" }}>
+											<div style={{ marginBottom: "12px" }}>
+												{item.brand && <p style={{ fontSize: "14px", fontWeight: "500", color: "#111827", margin: "0 0 4px 0" }}>{item.brand}</p>}
+												<div style={{ display: "flex", flexWrap: "wrap", gap: "4px", fontSize: "12px" }}>
+													{item.price && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#f3f4f6", color: "#374151" }}>${item.price}</span>}
+													{item.season && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#dbeafe", color: "#1e40af" }}>{item.season}</span>}
+													{item.size && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#d1fae5", color: "#065f46" }}>{item.size}</span>}
+													{item.category && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#8b5cf6", color: "white" }}>{item.category}</span>}
+												</div>
+											</div>
+											<button
+												onClick={() => handleDelete(item.id)}
+												style={{
+													width: "100%",
+													padding: "8px 16px",
+													backgroundColor: "#dc2626",
+													color: "white",
+													border: "none",
+													borderRadius: "8px",
+													fontSize: "14px",
+													fontWeight: "500",
+													cursor: "pointer",
+													transition: "background-color 0.2s",
+												}}
+											>
+												Remove
+											</button>
 										</div>
 									</div>
 								))}
 						</div>
-					)}
-				</section>
+					</div>
+				)}
 			</main>
+
+			{/* Floating Add Button */}
+			{items.length > 0 && (
+				<button
+					onClick={() => setShowAddModal(true)}
+					style={{
+						position: "fixed",
+						bottom: "24px",
+						right: "24px",
+						width: "60px",
+						height: "60px",
+						borderRadius: "50%",
+						backgroundColor: "#3b82f6",
+						color: "white",
+						border: "none",
+						fontSize: "24px",
+						cursor: "pointer",
+						boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+						transition: "all 200ms ease-in-out",
+						zIndex: 999,
+					}}
+					onMouseOver={(e) => {
+						e.target.style.backgroundColor = "#2563eb";
+						e.target.style.transform = "scale(1.05)";
+					}}
+					onMouseOut={(e) => {
+						e.target.style.backgroundColor = "#3b82f6";
+						e.target.style.transform = "scale(1)";
+					}}
+				>
+					<FiPlus />
+				</button>
+			)}
+
+			<AddItemModal />
 		</div>
 	);
 };
