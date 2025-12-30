@@ -50,6 +50,19 @@ export const authAPI = {
   },
 };
 
+// Admin Auth API calls
+export const adminAPI = {
+  register: async (name, email, password, adminKey) => {
+    const response = await api.post('/auth/admin/register', { name, email, password, adminKey });
+    return response.data;
+  },
+
+  login: async (email, password) => {
+    const response = await api.post('/auth/admin/login', { email, password });
+    return response.data;
+  },
+};
+
 // Clothing items API calls
 export const clothingAPI = {
   getAll: async () => {

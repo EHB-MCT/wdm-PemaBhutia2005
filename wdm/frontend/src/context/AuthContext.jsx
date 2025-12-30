@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, adminAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -15,6 +15,7 @@ const authReducer = (state, action) => {
         user: action.payload.user, 
         token: action.payload.token,
         isAuthenticated: true,
+        isAdmin: action.payload.user?.is_admin || false,
         error: null 
       };
     case 'LOGIN_FAILURE':
@@ -24,6 +25,7 @@ const authReducer = (state, action) => {
         user: null, 
         token: null,
         isAuthenticated: false,
+        isAdmin: false,
         error: action.payload 
       };
     case 'LOGOUT':
@@ -32,6 +34,7 @@ const authReducer = (state, action) => {
         user: null, 
         token: null,
         isAuthenticated: false,
+        isAdmin: false,
         error: null 
       };
     case 'REGISTER_START':
@@ -43,6 +46,7 @@ const authReducer = (state, action) => {
         user: action.payload.user, 
         token: action.payload.token,
         isAuthenticated: true,
+        isAdmin: action.payload.user?.is_admin || false,
         error: null 
       };
     case 'REGISTER_FAILURE':
@@ -52,6 +56,7 @@ const authReducer = (state, action) => {
         user: null, 
         token: null,
         isAuthenticated: false,
+        isAdmin: false,
         error: action.payload 
       };
     case 'CLEAR_ERROR':
@@ -65,6 +70,7 @@ const initialState = {
   user: null,
   token: localStorage.getItem('token'),
   isAuthenticated: false,
+  isAdmin: false,
   loading: false,
   error: null,
 };
@@ -142,6 +148,46 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const adminLogin = async (email, password) => {
+    dispatch({ type: 'LOGIN_START' });
+    
+    try {
+      const response = await adminAPI.login(email, password);
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user: response.user, token: response.token }
+      });
+      return response;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Admin login failed';
+      dispatch({
+        type: 'LOGIN_FAILURE',
+        payload: errorMessage
+      });
+      throw error;
+    }
+  };
+
+  const adminRegister = async (name, email, password, adminKey) => {
+    dispatch({ type: 'REGISTER_START' });
+    
+    try {
+      const response = await adminAPI.register(name, email, password, adminKey);
+      dispatch({
+        type: 'REGISTER_SUCCESS',
+        payload: { user: response.user, token: response.token }
+      });
+      return response;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Admin registration failed';
+      dispatch({
+        type: 'REGISTER_FAILURE',
+        payload: errorMessage
+      });
+      throw error;
+    }
+  };
+
   const logout = () => {
     dispatch({ type: 'LOGOUT' });
   };
@@ -154,6 +200,8 @@ export const AuthProvider = ({ children }) => {
     ...state,
     login,
     register,
+    adminLogin,
+    adminRegister,
     logout,
     clearError,
   };

@@ -2,8 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import Login from './components/Login';
 import Register from './components/Register';
+import AdminLogin from './components/AdminLogin';
+import AdminRegister from './components/AdminRegister';
 import Dashboard from './components/Dashboard';
 import OutfitMaker from './components/OutfitMaker';
 
@@ -16,6 +19,8 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/register" element={<AdminRegister />} />
             
             {/* Protected routes */}
             <Route 
@@ -32,6 +37,16 @@ function App() {
                 <ProtectedRoute>
                   <OutfitMaker />
                 </ProtectedRoute>
+              } 
+            />
+
+            {/* Admin protected routes */}
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <AdminProtectedRoute>
+                  <Dashboard />
+                </AdminProtectedRoute>
               } 
             />
                
