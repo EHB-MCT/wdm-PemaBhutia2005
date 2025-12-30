@@ -22,6 +22,7 @@ const Dashboard = () => {
 	const [message, setMessage] = useState("");
 	const [showAddModal, setShowAddModal] = useState(false);
 
+
 	const { user, logout } = useAuth();
 	const navigate = useNavigate();
 
@@ -129,6 +130,8 @@ const Dashboard = () => {
 			setMessage("Error deleting item");
 		}
 	};
+
+
 
 	const handleLogout = () => {
 		logout();

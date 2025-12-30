@@ -28,7 +28,7 @@ db.serialize(() => {
     )
   `);
 
-  // Create clothing items table with all required columns including category
+  // Create clothing items table with all required columns including category and EXIF data
   db.run(`
     CREATE TABLE IF NOT EXISTS clothing_items (
       id TEXT PRIMARY KEY,
@@ -39,6 +39,13 @@ db.serialize(() => {
       size TEXT,
       category TEXT,
       image_path TEXT,
+      gps_lat REAL,
+      gps_lon REAL,
+      gps_alt REAL,
+      datetime_original TEXT,
+      camera_make TEXT,
+      camera_model TEXT,
+      software TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
@@ -60,7 +67,7 @@ db.serialize(() => {
     )
   `);
 
-  // Clothing items table (updated to include user_id and category)
+  // Clothing items table (updated to include user_id, category, and EXIF data)
   db.run(`
     CREATE TABLE IF NOT EXISTS clothing_items (
       id TEXT PRIMARY KEY,
@@ -71,6 +78,13 @@ db.serialize(() => {
       size TEXT,
       category TEXT,
       image_path TEXT,
+      gps_lat REAL,
+      gps_lon REAL,
+      gps_alt REAL,
+      datetime_original TEXT,
+      camera_make TEXT,
+      camera_model TEXT,
+      software TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
@@ -83,6 +97,28 @@ db.serialize(() => {
     if (err && !err.message.includes('duplicate column name')) {
       console.log('Category column already exists or error adding it:', err.message);
     }
+  });
+
+  // Add EXIF data columns if they don't exist (for existing databases)
+  const exifColumns = [
+    'gps_lat REAL',
+    'gps_lon REAL', 
+    'gps_alt REAL',
+    'datetime_original TEXT',
+    'camera_make TEXT',
+    'camera_model TEXT',
+    'software TEXT'
+  ];
+
+  exifColumns.forEach(column => {
+    const [colName, colType] = column.split(' ');
+    db.run(`
+      ALTER TABLE clothing_items ADD COLUMN ${column}
+    `, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log(`${colName} column already exists or error adding it:`, err.message);
+      }
+    });
   });
 
   // Create outfits table

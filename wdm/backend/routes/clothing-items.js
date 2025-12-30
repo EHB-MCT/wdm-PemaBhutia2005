@@ -1,8 +1,10 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const ClothingItem = require("../models/ClothingItem");
 const authMiddleware = require("../middleware/auth");
+const exifr = require("exifr");
 
 const router = express.Router();
 
@@ -46,6 +48,26 @@ router.get("/", authMiddleware, async (req, res) => {
 	}
 });
 
+// Extract EXIF data from image
+async function extractExifData(filePath) {
+	try {
+		const exifData = await exifr.parse(filePath);
+		
+		return {
+			gps_lat: exifData?.latitude || null,
+			gps_lon: exifData?.longitude || null,
+			gps_alt: exifData?.altitude || null,
+			datetime_original: exifData?.DateTimeOriginal ? exifData.DateTimeOriginal.toISOString() : null,
+			camera_make: exifData?.Make || null,
+			camera_model: exifData?.Model || null,
+			software: exifData?.Software || null,
+		};
+	} catch (error) {
+		console.error("Error extracting EXIF data:", error);
+		return {};
+	}
+}
+
 // Add a new clothing item (authenticated users only)
 router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 	try {
@@ -57,7 +79,22 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 
 		console.log("Creating item:", { brand, price, season, size, category, user: req.user.id, file: req.file?.filename });
 
-		const newItem = await ClothingItem.create(req.user.id, brand || "", price || "", season || "", size || "", category || "", req.file.filename);
+		// Extract EXIF data from the uploaded image
+		const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+		const exifData = await extractExifData(filePath);
+
+		console.log("Extracted EXIF data:", exifData);
+
+		const newItem = await ClothingItem.create(
+			req.user.id, 
+			brand || "", 
+			price || "", 
+			season || "", 
+			size || "", 
+			category || "", 
+			req.file.filename,
+			exifData
+		);
 
 		console.log("Item created:", newItem);
 		res.status(201).json(newItem);

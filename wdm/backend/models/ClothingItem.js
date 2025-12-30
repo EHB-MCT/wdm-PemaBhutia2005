@@ -3,16 +3,27 @@ const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
 
 class ClothingItem {
-	static async create(userId, brand, price, season, size, category, imagePath) {
+	static async create(userId, brand, price, season, size, category, imagePath, exifData = {}) {
 		const itemId = uuidv4();
 
 		return new Promise((resolve, reject) => {
 			const query = `
-        INSERT INTO clothing_items (id, user_id, brand, price, season, size, category, image_path)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO clothing_items (id, user_id, brand, price, season, size, category, image_path, gps_lat, gps_lon, gps_alt, datetime_original, camera_make, camera_model, software)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
-			db.run(query, [itemId, userId, brand, price, season, size, category, imagePath], function (err) {
+			const params = [
+				itemId, userId, brand, price, season, size, category, imagePath,
+				exifData.gps_lat || null,
+				exifData.gps_lon || null,
+				exifData.gps_alt || null,
+				exifData.datetime_original || null,
+				exifData.camera_make || null,
+				exifData.camera_model || null,
+				exifData.software || null
+			];
+
+			db.run(query, params, function (err) {
 				if (err) {
 					reject(err);
 				} else {
@@ -25,6 +36,13 @@ class ClothingItem {
 						size,
 						category,
 						image_path: imagePath,
+						gps_lat: exifData.gps_lat,
+						gps_lon: exifData.gps_lon,
+						gps_alt: exifData.gps_alt,
+						datetime_original: exifData.datetime_original,
+						camera_make: exifData.camera_make,
+						camera_model: exifData.camera_model,
+						software: exifData.software,
 					});
 				}
 			});
