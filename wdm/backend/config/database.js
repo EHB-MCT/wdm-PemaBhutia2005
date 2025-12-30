@@ -11,12 +11,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// Drop and recreate tables to ensure schema is up to date
+// Create tables if they don't exist
 db.serialize(() => {
-  // Drop existing tables
-  db.run(`DROP TABLE IF EXISTS users`);
-  db.run(`DROP TABLE IF EXISTS clothing_items`);
-  
   // Create users table
   db.run(`
     CREATE TABLE IF NOT EXISTS users (

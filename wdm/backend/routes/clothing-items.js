@@ -78,13 +78,9 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 
 		const { brand, price, season, size, category } = req.body;
 
-		console.log("Creating item:", { brand, price, season, size, category, user: req.user.id, file: req.file?.filename });
-
-		// Extract EXIF data from the uploaded image
+		// Extract EXIF data from uploaded image
 		const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);
 		const exifData = await extractExifData(filePath);
-
-		console.log("Extracted EXIF data:", exifData);
 
 		const newItem = await ClothingItem.create(
 			req.user.id, 
@@ -96,8 +92,6 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 			req.file.filename,
 			exifData
 		);
-
-		console.log("Item created:", newItem);
 		res.status(201).json(newItem);
 	} catch (error) {
 		console.error("Error adding clothing item:", error);
@@ -123,38 +117,15 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 	}
 });
 
-// Admin routes
-
-// Debug endpoint to check current user's admin status
-router.get("/admin/check-status", authMiddleware, async (req, res) => {
-	try {
-		const user = await User.findById(req.user.id);
-		res.json({
-			user: user,
-			is_admin: user.is_admin,
-			is_admin_type: typeof user.is_admin,
-			is_admin_boolean: Boolean(user.is_admin)
-		});
-	} catch (error) {
-		console.error("Error checking admin status:", error);
-		res.status(500).json({ error: "Server error while checking admin status." });
-	}
-});
-
 // Get all users with their clothing items and EXIF data (admin only)
 router.get("/admin/users-with-items", authMiddleware, async (req, res) => {
 	try {
 		// Check if user is admin
 		const user = await User.findById(req.user.id);
-		console.log("Admin check - User:", user); // Debug log
-		console.log("Admin check - is_admin:", user.is_admin, "Type:", typeof user.is_admin); // Debug log
 		
 		if (!user || (user.is_admin !== 1 && user.is_admin !== true)) {
-			console.log("Access denied - user is not admin"); // Debug log
 			return res.status(403).json({ error: "Access denied. Admin privileges required." });
 		}
-
-		console.log("Access granted - user is admin"); // Debug log
 
 		// Get all users
 		const db = require("../config/database");
@@ -180,25 +151,6 @@ router.get("/admin/users-with-items", authMiddleware, async (req, res) => {
 	} catch (error) {
 		console.error("Error fetching admin data:", error);
 		res.status(500).json({ error: "Server error while fetching admin data." });
-	}
-});
-
-// Emergency endpoint to make a user admin (for development only)
-router.post("/admin/make-admin", authMiddleware, async (req, res) => {
-	try {
-		const { userId } = req.body;
-		const db = require("../config/database");
-		
-		db.run('UPDATE users SET is_admin = 1 WHERE id = ?', [userId], function(err) {
-			if (err) {
-				console.error("Error making user admin:", err);
-				return res.status(500).json({ error: "Failed to make user admin." });
-			}
-			res.json({ message: "User promoted to admin successfully." });
-		});
-	} catch (error) {
-		console.error("Error making user admin:", error);
-		res.status(500).json({ error: "Server error while making user admin." });
 	}
 });
 

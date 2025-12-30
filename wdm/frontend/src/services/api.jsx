@@ -102,18 +102,8 @@ export const adminAPI = {
     return response.data;
   },
 
-  checkAdminStatus: async () => {
-    const response = await api.get('/clothing-items/admin/check-status');
-    return response.data;
-  },
-
   getUsersWithItems: async () => {
     const response = await api.get('/clothing-items/admin/users-with-items');
-    return response.data;
-  },
-
-  makeAdmin: async (userId) => {
-    const response = await api.post('/clothing-items/admin/make-admin', { userId });
     return response.data;
   },
 };
