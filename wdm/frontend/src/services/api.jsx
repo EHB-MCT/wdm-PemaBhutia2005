@@ -111,6 +111,11 @@ export const adminAPI = {
     const response = await api.get('/clothing-items/admin/histogram-data');
     return response.data;
   },
+
+  getLocationData: async () => {
+    const response = await api.get('/clothing-items/admin/location-data');
+    return response.data;
+  },
 };
 
 export default api;

@@ -4,10 +4,13 @@ import { adminAPI } from "../services/api";
 import { FiShield, FiMapPin, FiCamera, FiCalendar, FiPackage } from "react-icons/fi";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const AdminDashboard = () => {
   const [usersWithItems, setUsersWithItems] = useState([]);
   const [histogramData, setHistogramData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
@@ -80,6 +83,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchUsersWithItems();
     fetchHistogramData();
+    fetchLocationData();
   }, []);
 
   const fetchUsersWithItems = async () => {
@@ -102,6 +106,15 @@ const AdminDashboard = () => {
       setHistogramData(data);
     } catch (error) {
       console.error("Error fetching histogram data:", error);
+    }
+  };
+
+  const fetchLocationData = async () => {
+    try {
+      const data = await adminAPI.getLocationData();
+      setLocationData(data);
+    } catch (error) {
+      console.error("Error fetching location data:", error);
     }
   };
 
@@ -278,6 +291,88 @@ const AdminDashboard = () => {
                 </div>
                 <div style={{ marginTop: "1rem", textAlign: "center", color: "#6b7280", fontSize: "0.875rem" }}>
                   Showing when users take photos throughout the day (24-hour UTC format)
+                </div>
+              </div>
+            </div>
+
+            {/* User Locations Map */}
+            <div style={{ marginTop: "2rem" }}>
+              <div className="card" style={{ padding: "1.5rem" }}>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
+                  🗺 User Locations Worldwide
+                </h2>
+                <div style={{ height: "500px", position: "relative", borderRadius: "0.5rem", overflow: "hidden" }}>
+                  {locationData.length > 0 ? (
+                    <MapContainer 
+                      center={[20, 0]} 
+                      zoom={2} 
+                      style={{ height: "100%", width: "100%" }}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      
+                      {/* User centroids with circles showing activity density */}
+                      {locationData.filter(user => user.centroid).map(user => (
+                        <Circle
+                          key={`centroid-${user.userId}`}
+                          center={[user.centroid.lat, user.centroid.lng]}
+                          radius={500000} // 500km radius
+                          fillColor="rgba(59, 130, 246, 0.1)"
+                          color="rgba(59, 130, 246, 0.3)"
+                          weight={1}
+                        />
+                      ))}
+                      
+                      {/* Individual photo markers */}
+                      {locationData.map(user => (
+                        <div key={user.userId}>
+                          {user.items.map((item, index) => (
+                            <Marker
+                              key={`${user.userId}-${item.itemId}`}
+                              position={[item.lat, item.lng]}
+                            >
+                              <Popup>
+                                <div style={{ minWidth: "200px" }}>
+                                  <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: "bold" }}>
+                                    {user.userName}
+                                  </h4>
+                                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                                    📸 {item.brand} {item.category}
+                                  </p>
+                                  <p style={{ margin: "4px 0", fontSize: "11px", color: "#6b7280" }}>
+                                    📍 {item.lat.toFixed(4)}, {item.lng.toFixed(4)}
+                                  </p>
+                                  {item.timestamp && (
+                                    <p style={{ margin: "4px 0", fontSize: "11px", color: "#6b7280" }}>
+                                      🕐 {new Date(item.timestamp).toLocaleString()}
+                                    </p>
+                                  )}
+                                  <p style={{ margin: "4px 0", fontSize: "11px", color: "#6b7280" }}>
+                                    📊 User has {user.totalItems} total items
+                                  </p>
+                                </div>
+                              </Popup>
+                            </Marker>
+                          ))}
+                        </div>
+                      ))}
+                    </MapContainer>
+                  ) : (
+                    <div style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "100%",
+                      color: "#6b7280" 
+                    }}>
+                      No location data available
+                    </div>
+                  )}
+                </div>
+                <div style={{ marginTop: "1rem", textAlign: "center", color: "#6b7280", fontSize: "0.875rem" }}>
+                  📍 Blue circles show user activity areas | Red dots mark individual photo locations
                 </div>
               </div>
             </div>

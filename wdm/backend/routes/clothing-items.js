@@ -230,4 +230,83 @@ router.get("/admin/histogram-data", authMiddleware, async (req, res) => {
 	}
 });
 
+// Get user location data for map visualization (admin only)
+router.get("/admin/location-data", authMiddleware, async (req, res) => {
+	try {
+		// Check if user is admin
+		const user = await User.findById(req.user.id);
+		
+		if (!user || (user.is_admin !== 1 && user.is_admin !== true)) {
+			return res.status(403).json({ error: "Access denied. Admin privileges required." });
+		}
+
+		// Get all clothing items with GPS data and user info
+		const db = require("../config/database");
+		const locationData = await new Promise((resolve, reject) => {
+			db.all(`
+				SELECT 
+					u.id as user_id,
+					u.name as user_name,
+					u.email as user_email,
+					ci.id as item_id,
+					ci.brand,
+					ci.category,
+					ci.gps_lat,
+					ci.gps_lon,
+					ci.gps_alt,
+					ci.datetime_original
+				FROM clothing_items ci
+				JOIN users u ON ci.user_id = u.id
+				WHERE ci.gps_lat IS NOT NULL AND ci.gps_lon IS NOT NULL
+				ORDER BY u.name
+			`, (err, rows) => {
+				if (err) reject(err);
+				else resolve(rows);
+			});
+		});
+
+		// Group by user and calculate centroids
+		const userLocations = {};
+		locationData.forEach(item => {
+			if (!userLocations[item.user_id]) {
+				userLocations[item.user_id] = {
+					userId: item.user_id,
+					userName: item.user_name,
+					userEmail: item.user_email,
+					items: [],
+					totalItems: 0
+				};
+			}
+			
+			userLocations[item.user_id].items.push({
+				itemId: item.item_id,
+				brand: item.brand,
+				category: item.category,
+				lat: parseFloat(item.gps_lat),
+				lng: parseFloat(item.gps_lon),
+				alt: parseFloat(item.gps_alt),
+				timestamp: item.datetime_original
+			});
+			
+			userLocations[item.user_id].totalItems++;
+		});
+
+		// Calculate user centroids (average location)
+		Object.values(userLocations).forEach(user => {
+			const validItems = user.items.filter(item => !isNaN(item.lat) && !isNaN(item.lng));
+			if (validItems.length > 0) {
+				user.centroid = {
+					lat: validItems.reduce((sum, item) => sum + item.lat, 0) / validItems.length,
+					lng: validItems.reduce((sum, item) => sum + item.lng, 0) / validItems.length
+				};
+			}
+		});
+
+		res.json(Object.values(userLocations));
+	} catch (error) {
+		console.error("Error fetching location data:", error);
+		res.status(500).json({ error: "Server error while fetching location data." });
+	}
+});
+
 module.exports = router;
