@@ -395,23 +395,50 @@ const Dashboard = () => {
 					<div className="text-center py-16">
 						<h3 className="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
 						<p className="text-body text-center max-w-md mx-auto">Start building your wardrobe by adding your first clothing item.</p>
-						<button
-							onClick={() => setShowAddModal(true)}
-							className="btn-primary mt-6"
-							style={{
-								padding: "12px 24px",
-								backgroundColor: "#3b82f6",
-								color: "white",
-								border: "none",
-								borderRadius: "8px",
-								fontSize: "14px",
-								fontWeight: "500",
-								cursor: "pointer",
-								transition: "all 200ms ease-in-out",
-							}}
-						>
-							Add Your First Item
-						</button>
+						
+						<div style={{ display: "flex", justifyContent: "center", marginTop: "32px" }}>
+							<div
+								onClick={() => setShowAddModal(true)}
+								className="card card-hover"
+								style={{
+									cursor: "pointer",
+									border: "2px dashed #d1d5db",
+									background: "#f9fafb",
+									width: "200px",
+									height: "300px",
+									display: "flex",
+									flexDirection: "column",
+									alignItems: "center",
+									justifyContent: "center",
+									transition: "all 0.2s ease-in-out",
+								}}
+								onMouseOver={(e) => {
+									e.target.style.borderColor = "#3b82f6";
+									e.target.style.backgroundColor = "#eff6ff";
+								}}
+								onMouseOut={(e) => {
+									e.target.style.borderColor = "#d1d5db";
+									e.target.style.backgroundColor = "#f9fafb";
+								}}
+							>
+								<div
+									style={{
+										width: "60px",
+										height: "60px",
+										borderRadius: "50%",
+										background: "#e5e7eb",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										marginBottom: "16px",
+									}}
+								>
+									<FiPlus size={24} color="#6b7280" />
+								</div>
+								<p style={{ fontSize: "16px", fontWeight: "500", color: "#374151", margin: "0" }}>Add First Item</p>
+								<p style={{ fontSize: "14px", color: "#6b7280", margin: "4px 0 0 0" }}>Click to add clothing</p>
+							</div>
+						</div>
 					</div>
 				) : (
 					<div>
@@ -541,6 +568,48 @@ const Dashboard = () => {
 								margin: "0 auto",
 							}}
 						>
+							{/* Add Item Card */}
+							<div
+								onClick={() => setShowAddModal(true)}
+								className="card card-hover"
+								style={{
+									cursor: "pointer",
+									border: "2px dashed #d1d5db",
+									background: "#f9fafb",
+									minHeight: "300px",
+									display: "flex",
+									flexDirection: "column",
+									alignItems: "center",
+									justifyContent: "center",
+									transition: "all 0.2s ease-in-out",
+								}}
+								onMouseOver={(e) => {
+									e.target.style.borderColor = "#3b82f6";
+									e.target.style.backgroundColor = "#eff6ff";
+								}}
+								onMouseOut={(e) => {
+									e.target.style.borderColor = "#d1d5db";
+									e.target.style.backgroundColor = "#f9fafb";
+								}}
+							>
+								<div
+									style={{
+										width: "60px",
+										height: "60px",
+										borderRadius: "50%",
+										background: "#e5e7eb",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										marginBottom: "16px",
+									}}
+								>
+									<FiPlus size={24} color="#6b7280" />
+								</div>
+								<p style={{ fontSize: "16px", fontWeight: "500", color: "#374151", margin: "0" }}>Add New Item</p>
+								<p style={{ fontSize: "14px", color: "#6b7280", margin: "4px 0 0 0" }}>Click to add clothing</p>
+							</div>
+
 							{items
 								.filter((item) => selectedCategory === "all" || item.category === selectedCategory)
 								.map((item, index) => (
@@ -607,39 +676,6 @@ const Dashboard = () => {
 					</div>
 				)}
 			</main>
-
-			{/* Floating Add Button */}
-			{items.length > 0 && (
-				<button
-					onClick={() => setShowAddModal(true)}
-					style={{
-						position: "fixed",
-						bottom: "24px",
-						right: "24px",
-						width: "60px",
-						height: "60px",
-						borderRadius: "50%",
-						backgroundColor: "#3b82f6",
-						color: "white",
-						border: "none",
-						fontSize: "24px",
-						cursor: "pointer",
-						boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-						transition: "all 200ms ease-in-out",
-						zIndex: 999,
-					}}
-					onMouseOver={(e) => {
-						e.target.style.backgroundColor = "#2563eb";
-						e.target.style.transform = "scale(1.05)";
-					}}
-					onMouseOut={(e) => {
-						e.target.style.backgroundColor = "#3b82f6";
-						e.target.style.transform = "scale(1)";
-					}}
-				>
-					<FiPlus />
-				</button>
-			)}
 
 			<AddItemModal />
 		</div>
