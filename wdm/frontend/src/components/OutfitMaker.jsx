@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { clothingAPI, outfitAPI } from "../services/api";
+import Navigation from "./Navigation";
 
 const OutfitMaker = () => {
 	const [items, setItems] = useState([]);
@@ -129,8 +130,10 @@ const OutfitMaker = () => {
 
 	return (
 		<div className="page-container">
-			{/* Header */}
-			<header style={{ backgroundColor: "white", borderBottom: "1px solid #f3f4f6" }}>
+			<Navigation />
+			
+			{/* Page Header */}
+			<div style={{ backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
 				<div className="container" style={{ padding: "1.5rem 0" }}>
 					<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 						<div>
@@ -142,42 +145,10 @@ const OutfitMaker = () => {
 								<p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Items in wardrobe</p>
 								<p style={{ fontSize: "1.5rem", fontWeight: "600", color: "#111827" }}>{items.length}</p>
 							</div>
-							<button
-								onClick={() => navigate("/dashboard")}
-								style={{
-									padding: "0.625rem 1rem",
-									backgroundColor: "transparent",
-									color: "#6b7280",
-									border: "1px solid #d1d5db",
-									borderRadius: "0.5rem",
-									fontSize: "0.875rem",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 200ms ease-in-out",
-								}}
-							>
-								← Back to Wardrobe
-							</button>
-							<button
-								onClick={handleLogout}
-								style={{
-									padding: "0.625rem 1rem",
-									backgroundColor: "transparent",
-									color: "#6b7280",
-									border: "1px solid #d1d5db",
-									borderRadius: "0.5rem",
-									fontSize: "0.875rem",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 200ms ease-in-out",
-								}}
-							>
-								Logout
-							</button>
 						</div>
 					</div>
 				</div>
-			</header>
+			</div>
 
 			{/* Main Content */}
 			<main className="container" style={{ padding: "2rem 0" }}>
