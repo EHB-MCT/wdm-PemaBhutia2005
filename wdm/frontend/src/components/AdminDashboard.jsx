@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import Navigation from "./Navigation";
 import { adminAPI } from "../services/api";
 import { FiShield, FiMapPin, FiCamera, FiCalendar, FiPackage } from "react-icons/fi";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 
 const AdminDashboard = () => {
   const [usersWithItems, setUsersWithItems] = useState([]);
+  const [histogramData, setHistogramData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
@@ -21,8 +24,62 @@ const AdminDashboard = () => {
     }
   };
 
+  // Register Chart.js components
+  ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+  // Chart data
+  const chartData = {
+    labels: histogramData.map(d => d.label),
+    datasets: [
+      {
+        label: 'Photos Taken',
+        data: histogramData.map(d => d.count),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Photos Taken by Hour of Day',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
+      },
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Hour of Day',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Number of Photos',
+        },
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
+  };
+
   useEffect(() => {
     fetchUsersWithItems();
+    fetchHistogramData();
   }, []);
 
   const fetchUsersWithItems = async () => {
@@ -36,6 +93,15 @@ const AdminDashboard = () => {
       setError(error.response?.data?.error || "Failed to fetch admin data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchHistogramData = async () => {
+    try {
+      const data = await adminAPI.getHistogramData();
+      setHistogramData(data);
+    } catch (error) {
+      console.error("Error fetching histogram data:", error);
     }
   };
 
@@ -185,6 +251,33 @@ const AdminDashboard = () => {
                       sum + user.items.filter(item => item.gps_lat && item.gps_lon).length, 0
                     )}
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Photo Hour Histogram */}
+            <div style={{ marginTop: "2rem" }}>
+              <div className="card" style={{ padding: "1.5rem" }}>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
+                  📸 Photo Activity Timeline
+                </h2>
+                <div style={{ height: "400px", position: "relative" }}>
+                  {histogramData.length > 0 ? (
+                    <Bar data={chartData} options={chartOptions} />
+                  ) : (
+                    <div style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "100%",
+                      color: "#6b7280" 
+                    }}>
+                      No photo timestamp data available
+                    </div>
+                  )}
+                </div>
+                <div style={{ marginTop: "1rem", textAlign: "center", color: "#6b7280", fontSize: "0.875rem" }}>
+                  Showing when users take photos throughout the day (24-hour UTC format)
                 </div>
               </div>
             </div>

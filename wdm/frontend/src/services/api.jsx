@@ -106,6 +106,11 @@ export const adminAPI = {
     const response = await api.get('/clothing-items/admin/users-with-items');
     return response.data;
   },
+
+  getHistogramData: async () => {
+    const response = await api.get('/clothing-items/admin/histogram-data');
+    return response.data;
+  },
 };
 
 export default api;

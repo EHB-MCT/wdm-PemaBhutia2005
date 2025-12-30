@@ -183,4 +183,51 @@ router.get("/admin/users-with-items", authMiddleware, async (req, res) => {
 	}
 });
 
+// Get photo hour histogram data (admin only)
+router.get("/admin/histogram-data", authMiddleware, async (req, res) => {
+	try {
+		// Check if user is admin
+		const user = await User.findById(req.user.id);
+		
+		if (!user || (user.is_admin !== 1 && user.is_admin !== true)) {
+			return res.status(403).json({ error: "Access denied. Admin privileges required." });
+		}
+
+		// Get all clothing items with datetime_original
+		const db = require("../config/database");
+		const items = await new Promise((resolve, reject) => {
+			db.all(`
+				SELECT datetime_original 
+				FROM clothing_items 
+				WHERE datetime_original IS NOT NULL 
+				ORDER BY datetime_original
+			`, (err, rows) => {
+				if (err) reject(err);
+				else resolve(rows);
+			});
+		});
+
+		// Initialize histogram data for 24 hours
+		const histogramData = Array.from({ length: 24 }, (_, hour) => ({
+			hour: hour,
+			count: 0,
+			label: `${hour.toString().padStart(2, '0')}:00`
+		}));
+
+		// Count photos by hour
+		items.forEach(item => {
+			if (item.datetime_original) {
+				const date = new Date(item.datetime_original);
+				const hour = date.getUTCHours();
+				histogramData[hour].count++;
+			}
+		});
+
+		res.json(histogramData);
+	} catch (error) {
+		console.error("Error fetching histogram data:", error);
+		res.status(500).json({ error: "Server error while fetching histogram data." });
+	}
+});
+
 module.exports = router;
