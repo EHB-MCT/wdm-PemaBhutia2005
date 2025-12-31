@@ -137,6 +137,15 @@ const AdminLogin = () => {
 
           <div className="mt-6 text-center">
             <p className="text-small">
+              Don't have admin access?{' '}
+              <Link
+                to="/admin/register"
+                className="font-medium text-red-600 hover:text-red-700 transition-colors"
+              >
+                Register here
+              </Link>
+            </p>
+            <p className="text-small mt-2">
               Regular user?{' '}
               <Link
                 to="/login"
