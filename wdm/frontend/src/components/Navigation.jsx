@@ -12,7 +12,6 @@ const Navigation = () => {
 	};
 
 	const navItems = [
-		{ path: "/dashboard", label: "Home" },
 		{ path: "/outfit-maker", label: "Outfit Maker" },
 		{ path: "/dashboard", label: "Wardrobe" },
 	];
@@ -22,7 +21,7 @@ const Navigation = () => {
 		{ path: "/admin/dashboard", label: "Admin Panel" }
 	] : [];
 
-	return (
+		return (
 		<nav style={{ 
 			backgroundColor: "white", 
 			borderBottom: "1px solid #e5e7eb",
@@ -31,7 +30,7 @@ const Navigation = () => {
 			top: 0,
 			zIndex: 100
 		}}>
-			<div className="container">
+			<div className="nav-content">
 				<div style={{ 
 					display: "flex", 
 					alignItems: "center", 
@@ -44,7 +43,7 @@ const Navigation = () => {
 							color: "#111827",
 							margin: 0
 						}}>
-							Wardrobe Manager
+							Fitfolio
 						</h1>
 						<div style={{ display: "flex", gap: "1rem" }}>
 							{[...navItems, ...adminNavItems].map((item) => (

@@ -449,9 +449,9 @@ const AdminDashboard = () => {
     <div className="page-container">
       <Navigation />
       
-      {/* Admin Header */}
-      <div style={{ backgroundColor: "#fef2f2", borderBottom: "1px solid #fecaca" }}>
-        <div className="container" style={{ padding: "1.5rem 0" }}>
+      <div className="nav-content" style={{ paddingTop: "2rem" }}>
+        {/* Admin Header */}
+        <div style={{ backgroundColor: "#fef2f2", borderBottom: "1px solid #fecaca", padding: "1.5rem 0", marginBottom: "2rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div className="inline-flex items-center justify-center w-10 h-10 bg-red-600 rounded-lg">
               <FiShield className="text-white" size={16} />
@@ -464,86 +464,86 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <main className="container py-8" style={{ display: "flex", gap: "2rem" }}>
-        {error && (
-          <div className="status-error mb-6" style={{ gridColumn: "1 / -1" }}>
-            {error}
-          </div>
-        )}
+        {/* Content */}
+        <main>
+          <div style={{ display: "flex", gap: "2rem" }}>
+          {error && (
+            <div className="status-error mb-6" style={{ gridColumn: "1 / -1" }}>
+              {error}
+            </div>
+          )}
 
-        {usersWithItems.length === 0 ? (
-          <div className="text-center py-16" style={{ gridColumn: "1 / -1" }}>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-            <p className="text-body">No users have registered yet.</p>
-          </div>
-        ) : (
-          <>
-            {/* Sidebar */}
-            <aside style={{ width: "300px", flexShrink: 0 }}>
-              <div className="card" style={{ padding: "1rem" }}>
-                <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
-                  👥 Users
-                </h3>
-                {selectedUserId && (
-                  <button
-                    onClick={() => setSelectedUserId(null)}
-                    style={{
-                      width: "100%",
-                      padding: "0.5rem",
-                      marginBottom: "1rem",
-                      backgroundColor: "#f3f4f6",
-                      border: "1px solid #d1d5db",
-                      borderRadius: "0.375rem",
-                      cursor: "pointer",
-                      fontSize: "0.875rem"
-                    }}
-                  >
-                    ← Show All Users
-                  </button>
-                )}
-                <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
-                  {usersWithItems.map((user) => {
-                    const isSelected = user.id === selectedUserId;
-                    const itemsWithPrice = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
-                    const totalValue = itemsWithPrice.reduce((sum, item) => sum + parseFloat(item.price), 0);
-                    
-                    return (
-                      <div
-                        key={user.id}
-                        onClick={() => handleUserSelect(user.id)}
-                        style={{
-                          padding: "0.75rem",
-                          marginBottom: "0.5rem",
-                          border: isSelected ? "2px solid #8b5cf6" : "1px solid #e5e7eb",
-                          borderRadius: "0.375rem",
-                          cursor: "pointer",
-                          backgroundColor: isSelected ? "#f3f0ff" : "white",
-                          transition: "all 0.2s"
-                        }}
-                      >
-                        <div style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
-                          {user.name}
-                        </div>
-                        <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
-                          {user.items.length} items • ${totalValue.toFixed(0)}
-                        </div>
-                        {itemsWithPrice.length > 0 && (
-                          <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                            Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
+          {usersWithItems.length === 0 ? (
+            <div className="text-center py-16" style={{ gridColumn: "1 / -1" }}>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+              <p className="text-body">No users have registered yet.</p>
+            </div>
+          ) : (
+            <>
+              {/* Sidebar */}
+              <aside style={{ width: "300px", flexShrink: 0 }}>
+                <div className="card" style={{ padding: "1rem" }}>
+                  <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
+                    👥 Users
+                  </h3>
+                  {selectedUserId && (
+                    <button
+                      onClick={() => setSelectedUserId(null)}
+                      style={{
+                        width: "100%",
+                        padding: "0.5rem",
+                        marginBottom: "1rem",
+                        backgroundColor: "#f3f4f6",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "0.375rem",
+                        cursor: "pointer",
+                        fontSize: "0.875rem"
+                      }}
+                    >
+                      ← Show All Users
+                    </button>
+                  )}
+                  <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+                    {usersWithItems.map((user) => {
+                      const isSelected = user.id === selectedUserId;
+                      const itemsWithPrice = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                      const totalValue = itemsWithPrice.reduce((sum, item) => sum + parseFloat(item.price), 0);
+                      
+                      return (
+                        <div
+                          key={user.id}
+                          onClick={() => handleUserSelect(user.id)}
+                          style={{
+                            padding: "0.75rem",
+                            marginBottom: "0.5rem",
+                            border: isSelected ? "2px solid #8b5cf6" : "1px solid #e5e7eb",
+                            borderRadius: "0.375rem",
+                            cursor: "pointer",
+                            backgroundColor: isSelected ? "#f3f0ff" : "white",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <div style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
+                            {user.name}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                            {user.items.length} items • ${totalValue.toFixed(0)}
+                          </div>
+                          {itemsWithPrice.length > 0 && (
+                            <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                              Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            </aside>
+              </aside>
 
-            {/* Main Content */}
-            <div style={{ flex: 1 }}>
+              {/* Main Content */}
+              <div style={{ flex: 1 }}>
               {/* Summary Stats */}
               <div style={{ 
                 display: "grid", 
@@ -806,10 +806,12 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-            </div>
-          </>
-        )}
-      </main>
+              </div>
+            </>
+          )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
