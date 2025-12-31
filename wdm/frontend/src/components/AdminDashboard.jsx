@@ -531,8 +531,41 @@ const AdminDashboard = () => {
                             {user.items.length} items • ${totalValue.toFixed(0)}
                           </div>
                           {itemsWithPrice.length > 0 && (
-                            <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                            <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
                               Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
+                            </div>
+                          )}
+                          {/* Economic Status Tag */}
+                          {user.priceStats?.socialStatus && user.priceStats.socialStatus !== 'No Data' && (
+                            <div 
+                              style={{
+                                fontSize: "0.75rem",
+                                fontWeight: "500",
+                                color: "white",
+                                backgroundColor: getSocialStatusColor(user.priceStats.socialStatus),
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.25rem",
+                                display: "inline-block",
+                                marginTop: "0.25rem"
+                              }}
+                            >
+                              {user.priceStats.socialStatus}
+                            </div>
+                          )}
+                          {user.priceStats?.socialStatus === 'No Data' && (
+                            <div 
+                              style={{
+                                fontSize: "0.75rem",
+                                fontWeight: "500",
+                                color: "#6b7280",
+                                backgroundColor: "#f3f4f6",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.25rem",
+                                display: "inline-block",
+                                marginTop: "0.25rem"
+                              }}
+                            >
+                              No Data
                             </div>
                           )}
                         </div>
