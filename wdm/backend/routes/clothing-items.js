@@ -130,7 +130,7 @@ router.get("/admin/users-with-items", authMiddleware, async (req, res) => {
 		// Get all users
 		const db = require("../config/database");
 		const users = await new Promise((resolve, reject) => {
-			db.all('SELECT id, name, email, created_at FROM users', (err, rows) => {
+			db.all('SELECT id, name, email, is_admin, created_at FROM users', (err, rows) => {
 				if (err) reject(err);
 				else resolve(rows);
 			});
@@ -248,6 +248,7 @@ router.get("/admin/location-data", authMiddleware, async (req, res) => {
 					u.id as user_id,
 					u.name as user_name,
 					u.email as user_email,
+					u.is_admin,
 					ci.id as item_id,
 					ci.brand,
 					ci.category,
@@ -273,6 +274,7 @@ router.get("/admin/location-data", authMiddleware, async (req, res) => {
 					userId: item.user_id,
 					userName: item.user_name,
 					userEmail: item.user_email,
+					isAdmin: item.is_admin === 1 || item.is_admin === true,
 					items: [],
 					totalItems: 0
 				};
@@ -322,7 +324,7 @@ router.get("/admin/price-tiers", authMiddleware, async (req, res) => {
 		// Get all users with their items
 		const db = require("../config/database");
 		const users = await new Promise((resolve, reject) => {
-			db.all('SELECT id, name, email FROM users', (err, rows) => {
+			db.all('SELECT id, name, email, is_admin FROM users', (err, rows) => {
 				if (err) reject(err);
 				else resolve(rows);
 			});

@@ -505,72 +505,167 @@ const AdminDashboard = () => {
                     </button>
                   )}
                   <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
-                    {usersWithItems.map((user) => {
-                      const isSelected = user.id === selectedUserId;
-                      const itemsWithPrice = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
-                      const totalValue = itemsWithPrice.reduce((sum, item) => sum + parseFloat(item.price), 0);
+                    {/* Admins Section */}
+                    {(() => {
+                      const adminUsers = usersWithItems.filter(user => user.is_admin === 1 || user.is_admin === true);
+                      if (adminUsers.length === 0) return null;
                       
                       return (
-                        <div
-                          key={user.id}
-                          onClick={() => handleUserSelect(user.id)}
-                          style={{
-                            padding: "0.75rem",
+                        <>
+                          <div style={{ 
+                            fontSize: "0.75rem", 
+                            fontWeight: "600", 
+                            color: "#dc2626", 
                             marginBottom: "0.5rem",
-                            border: isSelected ? "2px solid #8b5cf6" : "1px solid #e5e7eb",
-                            borderRadius: "0.375rem",
-                            cursor: "pointer",
-                            backgroundColor: isSelected ? "#f3f0ff" : "white",
-                            transition: "all 0.2s"
-                          }}
-                        >
-                          <div style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
-                            {user.name}
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em"
+                          }}>
+                            👑 Administrators ({adminUsers.length})
                           </div>
-                          <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
-                            {user.items.length} items • ${totalValue.toFixed(0)}
-                          </div>
-                          {itemsWithPrice.length > 0 && (
-                            <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
-                              Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
-                            </div>
-                          )}
-                          {/* Economic Status Tag */}
-                          {user.priceStats?.socialStatus && user.priceStats.socialStatus !== 'No Data' && (
-                            <div 
-                              style={{
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
-                                color: "white",
-                                backgroundColor: getSocialStatusColor(user.priceStats.socialStatus),
-                                padding: "0.25rem 0.5rem",
-                                borderRadius: "0.25rem",
-                                display: "inline-block",
-                                marginTop: "0.25rem"
-                              }}
-                            >
-                              {user.priceStats.socialStatus}
-                            </div>
-                          )}
-                          {user.priceStats?.socialStatus === 'No Data' && (
-                            <div 
-                              style={{
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
-                                color: "#6b7280",
-                                backgroundColor: "#f3f4f6",
-                                padding: "0.25rem 0.5rem",
-                                borderRadius: "0.25rem",
-                                display: "inline-block",
-                                marginTop: "0.25rem"
-                              }}
-                            >
-                              No Data
-                            </div>
-                          )}
-                        </div>
+                          {adminUsers.map((user) => {
+                            const isSelected = user.id === selectedUserId;
+                            const itemsWithPrice = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                            const totalValue = itemsWithPrice.reduce((sum, item) => sum + parseFloat(item.price), 0);
+                            
+                            return (
+                              <div
+                                key={user.id}
+                                onClick={() => handleUserSelect(user.id)}
+                                style={{
+                                  padding: "0.75rem",
+                                  marginBottom: "0.5rem",
+                                  border: isSelected ? "2px solid #dc2626" : "1px solid #fecaca",
+                                  borderRadius: "0.375rem",
+                                  cursor: "pointer",
+                                  backgroundColor: isSelected ? "#fef2f2" : "#fff5f5",
+                                  transition: "all 0.2s",
+                                  borderLeft: "3px solid #dc2626"
+                                }}
+                              >
+                                <div style={{ fontWeight: "600", fontSize: "0.875rem", marginBottom: "0.25rem", color: "#991b1b" }}>
+                                  👑 {user.name}
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                                  {user.items.length} items • ${totalValue.toFixed(0)}
+                                </div>
+                                {itemsWithPrice.length > 0 && (
+                                  <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                                    Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
+                                  </div>
+                                )}
+                                {/* Admin Badge */}
+                                <div 
+                                  style={{
+                                    fontSize: "0.7rem",
+                                    fontWeight: "600",
+                                    color: "white",
+                                    backgroundColor: "#dc2626",
+                                    padding: "0.2rem 0.5rem",
+                                    borderRadius: "0.25rem",
+                                    display: "inline-block",
+                                    marginTop: "0.25rem"
+                                  }}
+                                >
+                                  ADMIN
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <div style={{ 
+                            height: "1px", 
+                            backgroundColor: "#e5e7eb", 
+                            margin: "1rem 0" 
+                          }} />
+                        </>
                       );
-                    })}
+                    })()}
+                    
+                    {/* Regular Users Section */}
+                    {(() => {
+                      const regularUsers = usersWithItems.filter(user => !user.is_admin || user.is_admin === 0);
+                      if (regularUsers.length === 0) return null;
+                      
+                      return (
+                        <>
+                          <div style={{ 
+                            fontSize: "0.75rem", 
+                            fontWeight: "600", 
+                            color: "#374151", 
+                            marginBottom: "0.5rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em"
+                          }}>
+                            👥 Regular Users ({regularUsers.length})
+                          </div>
+                          {regularUsers.map((user) => {
+                            const isSelected = user.id === selectedUserId;
+                            const itemsWithPrice = user.items.filter(item => item.price && !isNaN(parseFloat(item.price)));
+                            const totalValue = itemsWithPrice.reduce((sum, item) => sum + parseFloat(item.price), 0);
+                            
+                            return (
+                              <div
+                                key={user.id}
+                                onClick={() => handleUserSelect(user.id)}
+                                style={{
+                                  padding: "0.75rem",
+                                  marginBottom: "0.5rem",
+                                  border: isSelected ? "2px solid #8b5cf6" : "1px solid #e5e7eb",
+                                  borderRadius: "0.375rem",
+                                  cursor: "pointer",
+                                  backgroundColor: isSelected ? "#f3f0ff" : "white",
+                                  transition: "all 0.2s"
+                                }}
+                              >
+                                <div style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
+                                  {user.name}
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                                  {user.items.length} items • ${totalValue.toFixed(0)}
+                                </div>
+                                {itemsWithPrice.length > 0 && (
+                                  <div style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                                    Avg: ${(totalValue / itemsWithPrice.length).toFixed(0)}
+                                  </div>
+                                )}
+                                {/* Economic Status Tag */}
+                                {user.priceStats?.socialStatus && user.priceStats.socialStatus !== 'No Data' && (
+                                  <div 
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      fontWeight: "500",
+                                      color: "white",
+                                      backgroundColor: getSocialStatusColor(user.priceStats.socialStatus),
+                                      padding: "0.25rem 0.5rem",
+                                      borderRadius: "0.25rem",
+                                      display: "inline-block",
+                                      marginTop: "0.25rem"
+                                    }}
+                                  >
+                                    {user.priceStats.socialStatus}
+                                  </div>
+                                )}
+                                {user.priceStats?.socialStatus === 'No Data' && (
+                                  <div 
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      fontWeight: "500",
+                                      color: "#6b7280",
+                                      backgroundColor: "#f3f4f6",
+                                      padding: "0.25rem 0.5rem",
+                                      borderRadius: "0.25rem",
+                                      display: "inline-block",
+                                      marginTop: "0.25rem"
+                                    }}
+                                  >
+                                    No Data
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </aside>
