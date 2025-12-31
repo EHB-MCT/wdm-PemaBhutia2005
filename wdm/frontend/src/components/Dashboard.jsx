@@ -83,6 +83,11 @@ const Dashboard = () => {
 			return;
 		}
 
+		if (!formData.price) {
+			setMessage("Please enter a price");
+			return;
+		}
+
 		setSubmitting(true);
 		setMessage("");
 
@@ -188,7 +193,7 @@ const Dashboard = () => {
 					</button>
 
 					<div className="card" style={{ border: "none", boxShadow: "none" }}>
-						<div className="text-center mb-8" style={{ paddingTop: "32px" }}>
+						<div className="text-center mb-8" style={{ paddingTop: "32px", paddingLeft: "24px", paddingRight: "24px" }}>
 							<h2 className="text-subheading mb-2">Add New Item</h2>
 							<p className="text-body">Upload a photo to start organizing your wardrobe</p>
 						</div>
@@ -239,7 +244,7 @@ const Dashboard = () => {
 													/>
 												) : (
 													<div className="w-full h-full flex items-center justify-center">
-														<FiPlus className="text-gray-400" size={20} />
+														<FiPlus className="text-gray-400" size={32} />
 													</div>
 												)}
 											</div>
@@ -273,17 +278,17 @@ const Dashboard = () => {
 									</div>
 
 									<div className="form-group">
+										<label htmlFor="price" className="form-label">
+											Price <span style={{ color: "#dc2626" }}>*</span>
+										</label>
+										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" required />
+									</div>
+
+									<div className="form-group">
 										<label htmlFor="brand" className="form-label">
 											Brand
 										</label>
 										<input id="brand" name="brand" type="text" value={formData.brand} onChange={handleChange} placeholder="e.g. Nike, Zara" className="input-field" />
-									</div>
-
-									<div className="form-group">
-										<label htmlFor="price" className="form-label">
-											Price
-										</label>
-										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" />
 									</div>
 
 									<div className="form-group">
@@ -355,65 +360,55 @@ const Dashboard = () => {
 		);
 	}
 
-	return (
+		return (
 		<div className="page-container">
 			<Navigation />
 
-			{/* Page Header */}
-			<div style={{ backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
-				<div className="container" style={{ padding: "1.5rem 0" }}>
+			<div className="nav-content" style={{ paddingTop: "2rem" }}>
+				{/* Page Header */}
+				<div style={{ backgroundColor: "var(--color-gray-50)", borderBottom: "1px solid var(--color-gray-200)", padding: "1.5rem 0", marginBottom: "2rem" }}>
 					<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 						<div>
-							<h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "#111827" }}>Wardrobe</h1>
-							<p style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "0.25rem" }}>Welcome back, {user?.name}</p>
+							<h1 className="text-heading">Wardrobe</h1>
+							<p className="text-small" style={{ marginTop: "0.25rem" }}>Welcome back, {user?.name}</p>
 						</div>
 						<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
 							<button
 								onClick={() => navigate("/outfit-maker")}
-								style={{
-									padding: "0.625rem 1rem",
-									backgroundColor: "#3b82f6",
-									color: "white",
-									border: "none",
-									borderRadius: "0.5rem",
-									fontSize: "0.875rem",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 200ms ease-in-out",
-								}}
+								className="btn-primary"
 							>
 								Outfit Maker
 							</button>
 							<div style={{ textAlign: "right" }}>
-								<p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Items</p>
-								<p style={{ fontSize: "1.5rem", fontWeight: "600", color: "#111827" }}>{items.length}</p>
+								<p className="text-small">Items</p>
+								<p className="text-heading">{items.length}</p>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<main className="container py-8">
+				<main>
 				{items.length === 0 ? (
-					<div className="text-center py-16">
-						<h3 className="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
-						<p className="text-body text-center max-w-md mx-auto">Start building your wardrobe by adding your first clothing item.</p>
+					<div className="text-center" style={{ padding: "var(--space-16) 0" }}>
+						<h3 className="text-subheading">No items yet</h3>
+						<p className="text-body" style={{ maxWidth: "28rem", margin: "0 auto" }}>Start building your wardrobe by adding your first clothing item.</p>
 						
-						<div style={{ display: "flex", justifyContent: "center", marginTop: "32px" }}>
+						<div style={{ display: "flex", justifyContent: "center", marginTop: "var(--space-8)" }}>
 							<div
 								onClick={() => setShowAddModal(true)}
 								className="card card-hover"
 								style={{
 									cursor: "pointer",
-									border: "2px dashed #d1d5db",
-									background: "#f9fafb",
+									border: "2px dashed var(--color-gray-300)",
+									background: "var(--color-gray-50)",
 									width: "200px",
 									height: "300px",
 									display: "flex",
 									flexDirection: "column",
 									alignItems: "center",
 									justifyContent: "center",
-									transition: "all 0.2s ease-in-out",
+									transition: "var(--transition-normal)",
+									borderRadius: "0.75rem",
 								}}
 								onMouseOver={(e) => {
 									e.target.style.borderColor = "#3b82f6";
@@ -429,132 +424,90 @@ const Dashboard = () => {
 										width: "60px",
 										height: "60px",
 										borderRadius: "50%",
-										background: "#e5e7eb",
+										background: "var(--color-gray-200)",
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "center",
-										marginBottom: "16px",
+										marginBottom: "var(--space-4)",
 									}}
 								>
-									<FiPlus size={24} color="#6b7280" />
+									<FiPlus size={24} color="var(--color-gray-400)" />
 								</div>
-								<p style={{ fontSize: "16px", fontWeight: "500", color: "#374151", margin: "0" }}>Add First Item</p>
-								<p style={{ fontSize: "14px", color: "#6b7280", margin: "4px 0 0 0" }}>Click to add clothing</p>
+								<p className="text-subheading" style={{ margin: "0" }}>Add First Item</p>
+								<p className="text-small" style={{ margin: "var(--space-1) 0 0 0" }}>Click to add clothing</p>
 							</div>
 						</div>
 					</div>
 				) : (
 					<div>
 						{/* Category Filter */}
-						<div style={{ marginBottom: "32px", display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "8px" }}>
+						<div style={{ marginBottom: "var(--space-8)", display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "var(--space-2)" }}>
 							<button
 								onClick={() => setSelectedCategory("all")}
+								className={selectedCategory === "all" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "all" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "all" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								All
 							</button>
 							<button
 								onClick={() => setSelectedCategory("tops")}
+								className={selectedCategory === "tops" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "tops" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "tops" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								Tops
 							</button>
 							<button
 								onClick={() => setSelectedCategory("bottoms")}
+								className={selectedCategory === "bottoms" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "bottoms" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "bottoms" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								Bottoms
 							</button>
 							<button
 								onClick={() => setSelectedCategory("shoes")}
+								className={selectedCategory === "shoes" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "shoes" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "shoes" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								Shoes
 							</button>
 							<button
 								onClick={() => setSelectedCategory("sweaters")}
+								className={selectedCategory === "sweaters" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "sweaters" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "sweaters" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								Sweaters
 							</button>
 							<button
 								onClick={() => setSelectedCategory("jackets")}
+								className={selectedCategory === "jackets" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "jackets" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "jackets" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								Jackets
 							</button>
 							<button
 								onClick={() => setSelectedCategory("accessories")}
+								className={selectedCategory === "accessories" ? "btn-primary" : "btn-secondary"}
 								style={{
-									padding: "8px 16px",
-									backgroundColor: selectedCategory === "accessories" ? "#3b82f6" : "#f3f4f6",
-									color: selectedCategory === "accessories" ? "white" : "#374151",
-									border: "none",
-									borderRadius: "8px",
+									padding: "var(--space-2) var(--space-4)",
 									fontSize: "14px",
-									fontWeight: "500",
-									cursor: "pointer",
-									transition: "all 0.2s",
 								}}
 							>
 								Accessories
@@ -566,8 +519,8 @@ const Dashboard = () => {
 							style={{
 								display: "grid",
 								gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-								gap: "20px",
-								maxWidth: "1280px",
+								gap: "var(--space-5)",
+								maxWidth: "80rem",
 								margin: "0 auto",
 							}}
 						>
@@ -577,14 +530,15 @@ const Dashboard = () => {
 								className="card card-hover"
 								style={{
 									cursor: "pointer",
-									border: "2px dashed #d1d5db",
-									background: "#f9fafb",
+									border: "2px dashed var(--color-gray-300)",
+									background: "var(--color-gray-50)",
 									minHeight: "300px",
 									display: "flex",
 									flexDirection: "column",
 									alignItems: "center",
 									justifyContent: "center",
-									transition: "all 0.2s ease-in-out",
+									transition: "var(--transition-normal)",
+									borderRadius: "0.75rem",
 								}}
 								onMouseOver={(e) => {
 									e.target.style.borderColor = "#3b82f6";
@@ -600,17 +554,17 @@ const Dashboard = () => {
 										width: "60px",
 										height: "60px",
 										borderRadius: "50%",
-										background: "#e5e7eb",
+										background: "var(--color-gray-200)",
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "center",
-										marginBottom: "16px",
+										marginBottom: "var(--space-4)",
 									}}
 								>
-									<FiPlus size={24} color="#6b7280" />
+									<FiPlus size={24} color="var(--color-gray-400)" />
 								</div>
-								<p style={{ fontSize: "16px", fontWeight: "500", color: "#374151", margin: "0" }}>Add New Item</p>
-								<p style={{ fontSize: "14px", color: "#6b7280", margin: "4px 0 0 0" }}>Click to add clothing</p>
+								<p className="text-subheading" style={{ margin: "0" }}>Add New Item</p>
+								<p className="text-small" style={{ margin: "var(--space-1) 0 0 0" }}>Click to add clothing</p>
 							</div>
 
 							{items
@@ -630,8 +584,8 @@ const Dashboard = () => {
 													width: "100%",
 													height: "200px",
 													overflow: "hidden",
-													borderRadius: "12px 12px 0 0",
-													backgroundColor: "#f3f4f6",
+													borderRadius: "var(--radius-xl) var(--radius-xl) 0 0",
+													backgroundColor: "var(--color-gray-100)",
 												}}
 											>
 												<img
@@ -645,29 +599,23 @@ const Dashboard = () => {
 												/>
 											</div>
 										)}
-										<div style={{ padding: "16px" }}>
-											<div style={{ marginBottom: "12px" }}>
-												{item.brand && <p style={{ fontSize: "14px", fontWeight: "500", color: "#111827", margin: "0 0 4px 0" }}>{item.brand}</p>}
-												<div style={{ display: "flex", flexWrap: "wrap", gap: "4px", fontSize: "12px" }}>
-													{item.price && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#f3f4f6", color: "#374151" }}>${item.price}</span>}
-													{item.season && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#dbeafe", color: "#1e40af" }}>{item.season}</span>}
-													{item.size && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#d1fae5", color: "#065f46" }}>{item.size}</span>}
-													{item.category && <span style={{ padding: "2px 8px", borderRadius: "9999px", backgroundColor: "#8b5cf6", color: "white" }}>{item.category}</span>}
+										<div style={{ padding: "var(--space-4)" }}>
+											<div style={{ marginBottom: "var(--space-3)" }}>
+												{item.brand && <p className="text-small" style={{ fontWeight: "500", color: "var(--color-gray-900)", margin: "0 0 var(--space-1) 0" }}>{item.brand}</p>}
+												<div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1)", fontSize: "12px" }}>
+													{item.price && <span style={{ padding: "var(--space-1) var(--space-2)", borderRadius: "9999px", backgroundColor: "var(--color-gray-100)", color: "var(--color-gray-700)" }}>${item.price}</span>}
+													{item.season && <span style={{ padding: "var(--space-1) var(--space-2)", borderRadius: "9999px", backgroundColor: "#dbeafe", color: "#1e40af" }}>{item.season}</span>}
+													{item.size && <span style={{ padding: "var(--space-1) var(--space-2)", borderRadius: "9999px", backgroundColor: "#d1fae5", color: "#065f46" }}>{item.size}</span>}
+													{item.category && <span style={{ padding: "var(--space-1) var(--space-2)", borderRadius: "9999px", backgroundColor: "#8b5cf6", color: "white" }}>{item.category}</span>}
 												</div>
 											</div>
 											<button
 												onClick={() => handleDelete(item.id)}
+												className="btn-danger"
 												style={{
 													width: "100%",
-													padding: "8px 16px",
-													backgroundColor: "#dc2626",
-													color: "white",
-													border: "none",
-													borderRadius: "8px",
+													padding: "var(--space-2) var(--space-4)",
 													fontSize: "14px",
-													fontWeight: "500",
-													cursor: "pointer",
-													transition: "background-color 0.2s",
 												}}
 											>
 												Remove
@@ -678,9 +626,10 @@ const Dashboard = () => {
 						</div>
 					</div>
 				)}
-			</main>
+				</main>
 
-			<AddItemModal />
+				<AddItemModal />
+			</div>
 		</div>
 	);
 };

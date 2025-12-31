@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiUserPlus } from 'react-icons/fi';
+import { FiUserPlus, FiShield } from 'react-icons/fi';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,8 @@ const Register = () => {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
+  const [showAdminKey, setShowAdminKey] = useState(false);
+  const [adminKey, setAdminKey] = useState('');
   
   const { register, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
@@ -28,6 +30,14 @@ const Register = () => {
         ...prev,
         [name]: ''
       }));
+    }
+  };
+
+  const handleAdminAccess = () => {
+    if (adminKey === 'admin-secret-key-2024') {
+      navigate('/admin/login');
+    } else {
+      setErrors({ adminKey: 'Invalid admin key' });
     }
   };
 
@@ -77,8 +87,9 @@ const Register = () => {
   };
 
   return (
-    <div className="page-container flex items-center justify-center p-4">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="page-container flex items-center justify-center">
+      <div className="nav-content flex items-center justify-center min-h-screen py-8">
+        <div className="w-full max-w-md animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
@@ -190,6 +201,63 @@ const Register = () => {
               </Link>
             </p>
           </div>
+
+          {/* Admin Access Section */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            {!showAdminKey ? (
+              <button
+                type="button"
+                onClick={() => setShowAdminKey(true)}
+                className="w-full py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center justify-center gap-2"
+              >
+                <FiShield size={16} />
+                Admin Access
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div className="form-group">
+                  <label htmlFor="adminKey" className="form-label text-sm">Admin Key</label>
+                  <input
+                    id="adminKey"
+                    name="adminKey"
+                    type="password"
+                    className={`input-field text-sm ${errors.adminKey ? 'input-field-error' : ''}`}
+                    placeholder="Enter admin key"
+                    value={adminKey}
+                    onChange={(e) => {
+                      setAdminKey(e.target.value);
+                      if (errors.adminKey) {
+                        setErrors(prev => ({ ...prev, adminKey: '' }));
+                      }
+                    }}
+                  />
+                  {errors.adminKey && (
+                    <p className="form-error">{errors.adminKey}</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAdminAccess}
+                    className="flex-1 py-2 px-4 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                  >
+                    Access Admin Panel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAdminKey(false);
+                      setAdminKey('');
+                      setErrors(prev => ({ ...prev, adminKey: '' }));
+                    }}
+                    className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
@@ -198,6 +266,7 @@ const Register = () => {
             By creating an account, you agree to our terms of service
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

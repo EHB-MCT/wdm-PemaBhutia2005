@@ -265,15 +265,23 @@ body {
   padding-right: 1rem;
 }
 
+/* Ensure consistent alignment with navigation content */
+.nav-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 @media (min-width: 640px) {
-  .container {
+  .container, .nav-content {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .container {
+  .container, .nav-content {
     padding-left: 2rem;
     padding-right: 2rem;
   }

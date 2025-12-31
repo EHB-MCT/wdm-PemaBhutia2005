@@ -65,8 +65,9 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="page-container flex items-center justify-center p-4">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="page-container flex items-center justify-center">
+      <div className="nav-content flex items-center justify-center min-h-screen py-8">
+        <div className="w-full max-w-md animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-red-600 rounded-xl mb-4">
@@ -136,6 +137,15 @@ const AdminLogin = () => {
 
           <div className="mt-6 text-center">
             <p className="text-small">
+              Don't have admin access?{' '}
+              <Link
+                to="/admin/register"
+                className="font-medium text-red-600 hover:text-red-700 transition-colors"
+              >
+                Register here
+              </Link>
+            </p>
+            <p className="text-small mt-2">
               Regular user?{' '}
               <Link
                 to="/login"
@@ -153,6 +163,7 @@ const AdminLogin = () => {
             Restricted access • Administrator privileges required
           </p>
         </div>
+      </div>
       </div>
     </div>
   );
