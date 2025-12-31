@@ -87,8 +87,9 @@ const Register = () => {
   };
 
   return (
-    <div className="page-container flex items-center justify-center p-4">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="page-container flex items-center justify-center">
+      <div className="nav-content flex items-center justify-center min-h-screen py-8">
+        <div className="w-full max-w-md animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
@@ -265,6 +266,7 @@ const Register = () => {
             By creating an account, you agree to our terms of service
           </p>
         </div>
+      </div>
       </div>
     </div>
   );
