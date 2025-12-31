@@ -83,6 +83,11 @@ const Dashboard = () => {
 			return;
 		}
 
+		if (!formData.price) {
+			setMessage("Please enter a price");
+			return;
+		}
+
 		setSubmitting(true);
 		setMessage("");
 
@@ -188,7 +193,7 @@ const Dashboard = () => {
 					</button>
 
 					<div className="card" style={{ border: "none", boxShadow: "none" }}>
-						<div className="text-center mb-8" style={{ paddingTop: "32px" }}>
+						<div className="text-center mb-8" style={{ paddingTop: "32px", paddingLeft: "24px", paddingRight: "24px" }}>
 							<h2 className="text-subheading mb-2">Add New Item</h2>
 							<p className="text-body">Upload a photo to start organizing your wardrobe</p>
 						</div>
@@ -239,7 +244,7 @@ const Dashboard = () => {
 													/>
 												) : (
 													<div className="w-full h-full flex items-center justify-center">
-														<FiPlus className="text-gray-400" size={20} />
+														<FiPlus className="text-gray-400" size={32} />
 													</div>
 												)}
 											</div>
@@ -273,17 +278,17 @@ const Dashboard = () => {
 									</div>
 
 									<div className="form-group">
+										<label htmlFor="price" className="form-label">
+											Price <span style={{ color: "#dc2626" }}>*</span>
+										</label>
+										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" required />
+									</div>
+
+									<div className="form-group">
 										<label htmlFor="brand" className="form-label">
 											Brand
 										</label>
 										<input id="brand" name="brand" type="text" value={formData.brand} onChange={handleChange} placeholder="e.g. Nike, Zara" className="input-field" />
-									</div>
-
-									<div className="form-group">
-										<label htmlFor="price" className="form-label">
-											Price
-										</label>
-										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" />
 									</div>
 
 									<div className="form-group">
@@ -403,6 +408,7 @@ const Dashboard = () => {
 									alignItems: "center",
 									justifyContent: "center",
 									transition: "var(--transition-normal)",
+									borderRadius: "0.75rem",
 								}}
 								onMouseOver={(e) => {
 									e.target.style.borderColor = "#3b82f6";
@@ -532,6 +538,7 @@ const Dashboard = () => {
 									alignItems: "center",
 									justifyContent: "center",
 									transition: "var(--transition-normal)",
+									borderRadius: "0.75rem",
 								}}
 								onMouseOver={(e) => {
 									e.target.style.borderColor = "#3b82f6";
