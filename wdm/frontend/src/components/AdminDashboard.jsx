@@ -482,8 +482,8 @@ const AdminDashboard = () => {
           ) : (
             <>
               {/* Sidebar */}
-              <aside style={{ width: "300px", flexShrink: 0 }}>
-                <div className="card" style={{ padding: "1rem" }}>
+              <aside style={{ width: "300px", flexShrink: 0, display: "flex", flexDirection: "column" }}>
+                <div className="card" style={{ padding: "1rem", height: "100%", display: "flex", flexDirection: "column" }}>
                   <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem", textAlign: "center" }}>
                     👥 Users
                   </h3>
@@ -498,13 +498,14 @@ const AdminDashboard = () => {
                         border: "1px solid #d1d5db",
                         borderRadius: "0.375rem",
                         cursor: "pointer",
-                        fontSize: "0.875rem"
+                        fontSize: "0.875rem",
+                        flexShrink: 0
                       }}
                     >
                       ← Show All Users
                     </button>
                   )}
-                  <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+                  <div style={{ height: "1200px", overflowY: "auto" }}>
                     {/* Admins Section */}
                     {(() => {
                       const adminUsers = usersWithItems.filter(user => user.is_admin === 1 || user.is_admin === true);
