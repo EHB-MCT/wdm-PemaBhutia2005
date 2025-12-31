@@ -12,8 +12,8 @@ const Navigation = () => {
 	};
 
 	const navItems = [
-		{ path: "/outfit-maker", label: "Outfit Maker" },
 		{ path: "/dashboard", label: "Wardrobe" },
+		{ path: "/outfit-maker", label: "Outfit Maker" },
 	];
 
 	// Add admin navigation items if user is admin
