@@ -16,6 +16,7 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [economicStatusFilter, setEconomicStatusFilter] = useState("All");
 
   // Color coding for social status
   const getSocialStatusColor = (status) => {
@@ -396,6 +397,14 @@ const AdminDashboard = () => {
     setSelectedUserId(userId === selectedUserId ? null : userId);
   };
 
+  // Filter users based on economic status
+  const getFilteredUsers = (users) => {
+    if (economicStatusFilter === "All") return users;
+    return users.filter(user => 
+      user.priceStats?.socialStatus === economicStatusFilter
+    );
+  };
+
   const formatExifData = (item) => {
     const exifFields = [];
     
@@ -505,11 +514,46 @@ const AdminDashboard = () => {
                       ← Show All Users
                     </button>
                   )}
+
+                  {/* Economic Status Filter */}
+                  <div style={{ marginBottom: "1rem", flexShrink: 0 }}>
+                    <label style={{ 
+                      fontSize: "0.875rem", 
+                      fontWeight: "500", 
+                      color: "#374151", 
+                      display: "block", 
+                      marginBottom: "0.5rem" 
+                    }}>
+                      Filter by Economic Status:
+                    </label>
+                    <select
+                      value={economicStatusFilter}
+                      onChange={(e) => setEconomicStatusFilter(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "0.5rem",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "0.375rem",
+                        fontSize: "0.875rem",
+                        backgroundColor: "white",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="All">All Users</option>
+                      <option value="Budget-Conscious">🟢 Budget-Conscious</option>
+                      <option value="Middle Class">🔵 Middle Class</option>
+                      <option value="Upper Middle Class">🟣 Upper Middle Class</option>
+                      <option value="Affluent">🟠 Affluent</option>
+                      <option value="High Net Worth">🔴 High Net Worth</option>
+                      <option value="No Data">⚪ No Data</option>
+                    </select>
+                  </div>
                   <div style={{ height: "1200px", overflowY: "auto" }}>
                     {/* Admins Section */}
                     {(() => {
-                      const adminUsers = usersWithItems.filter(user => user.is_admin === 1 || user.is_admin === true);
-                      if (adminUsers.length === 0) return null;
+                      const allAdminUsers = usersWithItems.filter(user => user.is_admin === 1 || user.is_admin === true);
+                      const adminUsers = getFilteredUsers(allAdminUsers);
+                      if (adminUsers.length === 0 && economicStatusFilter === "All") return null;
                       
                       return (
                         <>
@@ -521,7 +565,7 @@ const AdminDashboard = () => {
                             textTransform: "uppercase",
                             letterSpacing: "0.05em"
                           }}>
-                            👑 Administrators ({adminUsers.length})
+                            👑 Administrators ({adminUsers.length}{economicStatusFilter !== "All" ? `/${allAdminUsers.length}` : ""})
                           </div>
                           {adminUsers.map((user) => {
                             const isSelected = user.id === selectedUserId;
@@ -572,6 +616,19 @@ const AdminDashboard = () => {
                               </div>
                             );
                           })}
+                          {economicStatusFilter !== "All" && adminUsers.length === 0 && (
+                            <div style={{ 
+                              padding: "1rem", 
+                              textAlign: "center", 
+                              color: "#6b7280", 
+                              fontSize: "0.875rem",
+                              backgroundColor: "#f9fafb",
+                              borderRadius: "0.375rem",
+                              marginBottom: "0.5rem"
+                            }}>
+                              No administrators with "{economicStatusFilter}" status
+                            </div>
+                          )}
                           <div style={{ 
                             height: "1px", 
                             backgroundColor: "#e5e7eb", 
@@ -583,8 +640,9 @@ const AdminDashboard = () => {
                     
                     {/* Regular Users Section */}
                     {(() => {
-                      const regularUsers = usersWithItems.filter(user => !user.is_admin || user.is_admin === 0);
-                      if (regularUsers.length === 0) return null;
+                      const allRegularUsers = usersWithItems.filter(user => !user.is_admin || user.is_admin === 0);
+                      const regularUsers = getFilteredUsers(allRegularUsers);
+                      if (regularUsers.length === 0 && economicStatusFilter === "All") return null;
                       
                       return (
                         <>
@@ -596,7 +654,7 @@ const AdminDashboard = () => {
                             textTransform: "uppercase",
                             letterSpacing: "0.05em"
                           }}>
-                            👥 Regular Users ({regularUsers.length})
+                            👥 Regular Users ({regularUsers.length}{economicStatusFilter !== "All" ? `/${allRegularUsers.length}` : ""})
                           </div>
                           {regularUsers.map((user) => {
                             const isSelected = user.id === selectedUserId;
@@ -664,6 +722,19 @@ const AdminDashboard = () => {
                               </div>
                             );
                           })}
+                          {economicStatusFilter !== "All" && regularUsers.length === 0 && (
+                            <div style={{ 
+                              padding: "1rem", 
+                              textAlign: "center", 
+                              color: "#6b7280", 
+                              fontSize: "0.875rem",
+                              backgroundColor: "#f9fafb",
+                              borderRadius: "0.375rem",
+                              marginBottom: "0.5rem"
+                            }}>
+                              No regular users with "{economicStatusFilter}" status
+                            </div>
+                          )}
                         </>
                       );
                     })()}
