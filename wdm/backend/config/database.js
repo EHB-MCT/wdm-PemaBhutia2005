@@ -6,49 +6,7 @@ const dbPath = path.join(__dirname, '..', 'database.sqlite');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
-  } else {
-    console.log('Connected to SQLite database');
   }
-});
-
-// Create tables if they don't exist
-db.serialize(() => {
-  // Create users table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      email UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      is_admin BOOLEAN DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  // Create clothing items table with all required columns including category and EXIF data
-  db.run(`
-    CREATE TABLE IF NOT EXISTS clothing_items (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      brand TEXT,
-      price TEXT,
-      season TEXT,
-      size TEXT,
-      category TEXT,
-      image_path TEXT,
-      gps_lat REAL,
-      gps_lon REAL,
-      gps_alt REAL,
-      datetime_original TEXT,
-      camera_make TEXT,
-      camera_model TEXT,
-      software TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-    )
-  `);
-  
-  console.log('Database schema updated successfully');
 });
 
 // Create tables
@@ -93,7 +51,7 @@ db.serialize(() => {
     ALTER TABLE clothing_items ADD COLUMN category TEXT
   `, (err) => {
     if (err && !err.message.includes('duplicate column name')) {
-      console.log('Category column already exists or error adding it:', err.message);
+      // Category column already exists or error adding it
     }
   });
 
@@ -114,7 +72,7 @@ db.serialize(() => {
       ALTER TABLE clothing_items ADD COLUMN ${column}
     `, (err) => {
       if (err && !err.message.includes('duplicate column name')) {
-        console.log(`${colName} column already exists or error adding it:`, err.message);
+        // ${colName} column already exists or error adding it
       }
     });
   });
@@ -124,7 +82,7 @@ db.serialize(() => {
     ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0
   `, (err) => {
     if (err && !err.message.includes('duplicate column name')) {
-      console.log('is_admin column already exists or error adding it:', err.message);
+      // is_admin column already exists or error adding it
     }
   });
 

@@ -44,7 +44,6 @@ router.get("/", authMiddleware, async (req, res) => {
 		const items = await ClothingItem.findByUserId(req.user.id);
 		res.json(items);
 	} catch (error) {
-		console.error("Error fetching clothing items:", error);
 		res.status(500).json({ error: "Server error while fetching clothing items." });
 	}
 });
@@ -64,8 +63,7 @@ async function extractExifData(filePath) {
 			software: exifData?.Software || null,
 		};
 	} catch (error) {
-		console.error("Error extracting EXIF data:", error);
-		return {};
+		res.status(500).json({ error: "Failed to fetch price tier data." });
 	}
 }
 
@@ -94,9 +92,6 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 		);
 		res.status(201).json(newItem);
 	} catch (error) {
-		console.error("Error adding clothing item:", error);
-		console.error("Error details:", error.message);
-		console.error("Error stack:", error.stack);
 		res.status(500).json({ error: "Server error while adding clothing item." });
 	}
 });
@@ -112,7 +107,6 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 
 		res.json({ message: "Clothing item deleted successfully." });
 	} catch (error) {
-		console.error("Error deleting clothing item:", error);
 		res.status(500).json({ error: "Server error while deleting clothing item." });
 	}
 });
@@ -178,8 +172,7 @@ router.get("/admin/users-with-items", authMiddleware, async (req, res) => {
 
 		res.json(usersWithItems);
 	} catch (error) {
-		console.error("Error fetching admin data:", error);
-		res.status(500).json({ error: "Server error while fetching admin data." });
+		res.status(500).json({ error: "Failed to extract EXIF data from image." });
 	}
 });
 
@@ -225,8 +218,7 @@ router.get("/admin/histogram-data", authMiddleware, async (req, res) => {
 
 		res.json(histogramData);
 	} catch (error) {
-		console.error("Error fetching histogram data:", error);
-		res.status(500).json({ error: "Server error while fetching histogram data." });
+		res.status(500).json({ error: "Failed to fetch histogram data." });
 	}
 });
 
@@ -306,8 +298,7 @@ router.get("/admin/location-data", authMiddleware, async (req, res) => {
 
 		res.json(Object.values(userLocations));
 	} catch (error) {
-		console.error("Error fetching location data:", error);
-		res.status(500).json({ error: "Server error while fetching location data." });
+		res.status(500).json({ error: "Failed to fetch admin data." });
 	}
 });
 
@@ -375,8 +366,7 @@ router.get("/admin/price-tiers", authMiddleware, async (req, res) => {
 
 		res.json(priceTierData);
 	} catch (error) {
-		console.error("Error fetching price tier data:", error);
-		res.status(500).json({ error: "Server error while fetching price tier data." });
+		res.status(500).json({ error: "Failed to fetch location data." });
 	}
 });
 

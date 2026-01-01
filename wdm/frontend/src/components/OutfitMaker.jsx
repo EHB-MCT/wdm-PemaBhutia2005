@@ -32,7 +32,7 @@ const OutfitMaker = () => {
 			// Add imageUrl to each item
 			const itemsWithUrls = items.map(item => ({
 				...item,
-				imageUrl: `http://localhost:5000/uploads/${item.image_path}`,
+				imageUrl: `${import.meta.env.VITE_API_URL.replace('/api', '')}/uploads/${item.image_path}`,
 				name: item.brand || `${item.category} item`
 			}));
 			setItems(itemsWithUrls);

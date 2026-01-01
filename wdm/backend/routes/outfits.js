@@ -10,7 +10,6 @@ router.get('/', authMiddleware, async (req, res) => {
     const outfits = await Outfit.findByUserId(req.user.id);
     res.json(outfits);
   } catch (error) {
-    console.error('Error fetching outfits:', error);
     res.status(500).json({ error: 'Server error while fetching outfits.' });
   }
 });
@@ -34,7 +33,6 @@ router.post('/', authMiddleware, async (req, res) => {
 
     res.status(201).json(newOutfit);
   } catch (error) {
-    console.error('Error creating outfit:', error);
     res.status(500).json({ error: 'Server error while creating outfit.' });
   }
 });
@@ -50,7 +48,6 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     res.json({ message: 'Outfit deleted successfully.' });
   } catch (error) {
-    console.error('Error deleting outfit:', error);
     res.status(500).json({ error: 'Server error while deleting outfit.' });
   }
 });

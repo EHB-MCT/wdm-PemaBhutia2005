@@ -14,7 +14,7 @@ const Dashboard = () => {
 		size: "",
 		category: "",
 	});
-	const [selectedCategory, setSelectedCategory] = useState("all");
+
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
 	const [loading, setLoading] = useState(true);

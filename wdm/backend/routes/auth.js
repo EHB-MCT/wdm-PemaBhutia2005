@@ -41,7 +41,6 @@ router.post('/register', async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Registration error:', error);
     res.status(500).json({ error: 'Server error during registration.' });
   }
 });
@@ -81,7 +80,6 @@ router.post('/login', async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Login error:', error);
     res.status(500).json({ error: 'Server error during login.' });
   }
 });
@@ -156,7 +154,6 @@ router.post('/admin/register', async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Admin registration error:', error);
     res.status(500).json({ error: 'Server error during admin registration.' });
   }
 });
@@ -201,7 +198,6 @@ router.post('/admin/login', async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Admin login error:', error);
     res.status(500).json({ error: 'Server error during admin login.' });
   }
 });
