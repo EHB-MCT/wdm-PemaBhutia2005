@@ -72,6 +72,18 @@ FitFolio is a full-stack web application for managing a digital wardrobe. Users 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:5000
 
+# Test Account
+
+For testing purposes, a test user account is pre-populated with sample clothing items and outfits:
+
+**Email:** testuser2@email.com  
+**Password:** testuser2
+
+This account contains:
+- 8 clothing items with EXIF data and images
+- Sample outfit combinations
+- Realistic pricing and brand data
+
 # Sources
 
 ## Docker
