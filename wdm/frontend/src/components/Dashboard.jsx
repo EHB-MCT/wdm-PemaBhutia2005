@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { clothingAPI } from "../services/api";
 import Navigation from "./Navigation";
+import AddItemModal from "./AddItemModal";
 import { FiPlus } from "react-icons/fi";
 
 const Dashboard = () => {
@@ -21,6 +22,7 @@ const Dashboard = () => {
 	const [submitting, setSubmitting] = useState(false);
 	const [message, setMessage] = useState("");
 	const [showAddModal, setShowAddModal] = useState(false);
+	const [selectedCategory, setSelectedCategory] = useState("all");
 
 
 	const { user, logout } = useAuth();
@@ -31,9 +33,10 @@ const Dashboard = () => {
 		fetchItems();
 	}, []);
 
-	const fetchItems = async () => {
+const fetchItems = async () => {
 		try {
 			const items = await clothingAPI.getAll();
+			console.log("Fetched items:", items);
 			setItems(items);
 			setLoading(false);
 		} catch (error) {
@@ -55,22 +58,22 @@ const Dashboard = () => {
 		}
 	};
 
-	const triggerFileUpload = () => {
+const triggerFileUpload = useCallback(() => {
 		const fileInput = document.getElementById('image-upload');
 		if (fileInput) {
 			fileInput.click();
 		}
-	};
+	}, []);
 
-	const handleChange = (e) => {
+const handleChange = useCallback((e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({
 			...prev,
 			[name]: value,
 		}));
-	};
+	}, []);
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = useCallback(async (e) => {
 		e.preventDefault();
 
 		if (!imageFile) {
@@ -112,13 +115,13 @@ const Dashboard = () => {
 
 			// Clear message after 3 seconds
 			setTimeout(() => setMessage(""), 3000);
-		} catch (error) {
+} catch (error) {
 			console.error("Error adding item:", error);
 			setMessage("Error adding item");
 		} finally {
 			setSubmitting(false);
 		}
-	};
+	}, [imageFile, formData]);
 
 	const handleDelete = async (itemId) => {
 		if (!window.confirm("Are you sure you want to delete this item?")) {
@@ -143,212 +146,7 @@ const Dashboard = () => {
 		navigate("/login");
 	};
 
-	// Add Item Modal Component
-	const AddItemModal = () => {
-		if (!showAddModal) return null;
 
-		return (
-			<div
-				style={{
-					position: "fixed",
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: "rgba(0, 0, 0, 0.5)",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-					zIndex: 1000,
-					padding: "20px",
-				}}
-			>
-				<div
-					style={{
-						background: "white",
-						borderRadius: "16px",
-						maxWidth: "800px",
-						width: "100%",
-						maxHeight: "90vh",
-						overflowY: "auto",
-						position: "relative",
-					}}
-				>
-					{/* Close button */}
-					<button
-						onClick={() => setShowAddModal(false)}
-						style={{
-							position: "absolute",
-							top: "16px",
-							right: "16px",
-							background: "none",
-							border: "none",
-							fontSize: "24px",
-							cursor: "pointer",
-							color: "#6b7280",
-							zIndex: 1,
-						}}
-					>
-						×
-					</button>
-
-					<div className="card" style={{ border: "none", boxShadow: "none" }}>
-						<div className="text-center mb-8" style={{ paddingTop: "32px", paddingLeft: "24px", paddingRight: "24px" }}>
-							<h2 className="text-subheading mb-2">Add New Item</h2>
-							<p className="text-body">Upload a photo to start organizing your wardrobe</p>
-						</div>
-
-						{message && (
-							<div className={`mb-6 animate-slide-up ${message.includes("success") ? "status-success" : "status-error"}`} style={{ margin: "0 24px" }}>
-								{message}
-							</div>
-						)}
-
-						<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style={{ padding: "0 24px 24px" }}>
-								{/* Image Upload */}
-								<div>
-									<input 
-										id="image-upload"
-										type="file" 
-										accept="image/*" 
-										onChange={handleImageUpload} 
-										style={{ display: 'none' }} 
-									/>
-
-									<div 
-										onClick={triggerFileUpload}
-										className={`rounded-xl border-2 border-dashed p-6 transition-all duration-200 cursor-pointer ${imagePreview ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}
-									>
-										<div className="flex items-start gap-4">
-											{/* Preview (fixed size, left-aligned) */}
-											<div
-												style={{
-													width: "128px",
-													height: "128px",
-													overflow: "hidden",
-													borderRadius: "12px",
-													background: "#e5e7eb",
-													flexShrink: 0,
-												}}
-											>
-												{imagePreview ? (
-													<img
-														src={imagePreview}
-														alt="Preview"
-														style={{
-															width: "100%",
-															height: "100%",
-															objectFit: "cover",
-															display: "block",
-														}}
-													/>
-												) : (
-													<div className="w-full h-full flex items-center justify-center">
-														<FiPlus className="text-gray-400" size={32} />
-													</div>
-												)}
-											</div>
-
-											{/* Text */}
-											<div className="flex-1">
-												<p className="text-medium text-gray-900">{imagePreview ? "Click to change photo" : "Click to upload a photo"}</p>
-												<p className="text-small text-gray-500 mt-1">PNG, JPG up to 5MB</p>
-												<p className="text-xs text-gray-400 mt-3">Tip: upload a clear photo with the item centered.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-
-							<div className="space-y-6">
-								{/* Details Grid */}
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-									<div className="form-group">
-										<label htmlFor="category" className="form-label">
-											Category <span style={{ color: "#dc2626" }}>*</span>
-										</label>
-										<select id="category" name="category" value={formData.category} onChange={handleChange} className="input-field">
-											<option value="">Select category</option>
-											<option value="tops">Tops</option>
-											<option value="bottoms">Bottoms</option>
-											<option value="shoes">Shoes</option>
-											<option value="sweaters">Sweaters</option>
-											<option value="jackets">Jackets</option>
-											<option value="accessories">Accessories</option>
-										</select>
-									</div>
-
-									<div className="form-group">
-										<label htmlFor="price" className="form-label">
-											Price <span style={{ color: "#dc2626" }}>*</span>
-										</label>
-										<input id="price" name="price" type="number" value={formData.price} onChange={handleChange} placeholder="0.00" step="0.01" className="input-field" required />
-									</div>
-
-									<div className="form-group">
-										<label htmlFor="brand" className="form-label">
-											Brand
-										</label>
-										<input id="brand" name="brand" type="text" value={formData.brand} onChange={handleChange} placeholder="e.g. Nike, Zara" className="input-field" />
-									</div>
-
-									<div className="form-group">
-										<label htmlFor="season" className="form-label">
-											Season
-										</label>
-										<select id="season" name="season" value={formData.season} onChange={handleChange} className="input-field">
-											<option value="">Select season</option>
-											<option value="Spring">Spring</option>
-											<option value="Summer">Summer</option>
-											<option value="Fall">Fall</option>
-											<option value="Winter">Winter</option>
-										</select>
-									</div>
-
-									<div className="form-group">
-										<label htmlFor="size" className="form-label">
-											Size
-										</label>
-										<select id="size" name="size" value={formData.size} onChange={handleChange} className="input-field">
-											<option value="">Select size</option>
-											<option value="XS">XS</option>
-											<option value="S">S</option>
-											<option value="M">M</option>
-											<option value="L">L</option>
-											<option value="XL">XL</option>
-											<option value="XXL">XXL</option>
-										</select>
-									</div>
-								</div>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4" style={{ gridColumn: "1 / -1" }}>
-								<button
-									type="button"
-									onClick={() => setShowAddModal(false)}
-									style={{
-										padding: "12px 24px",
-										backgroundColor: "#f3f4f6",
-										color: "#374151",
-										border: "none",
-										borderRadius: "8px",
-										fontSize: "14px",
-										fontWeight: "500",
-										cursor: "pointer",
-										transition: "all 200ms ease-in-out",
-									}}
-								>
-									Cancel
-								</button>
-								<button type="submit" disabled={submitting} className="btn-primary">
-									{submitting ? <span>Adding to wardrobe...</span> : "Add to Wardrobe"}
-								</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		);
-	};
 
 	if (loading) {
 		return (
@@ -589,7 +387,7 @@ const Dashboard = () => {
 												}}
 											>
 												<img
-													src={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${item.image_path}`}
+													src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000"}/uploads/${item.image_path}`}
 													alt="Clothing item"
 													style={{
 														width: "100%",
@@ -628,7 +426,18 @@ const Dashboard = () => {
 				)}
 				</main>
 
-				<AddItemModal />
+				<AddItemModal 
+				showAddModal={showAddModal}
+				formData={formData}
+				imageFile={imageFile}
+				imagePreview={imagePreview}
+				submitting={submitting}
+				message={message}
+				handleChange={handleChange}
+				handleSubmit={handleSubmit}
+				handleImageUpload={handleImageUpload}
+				setShowAddModal={setShowAddModal}
+			/>
 			</div>
 		</div>
 	);
