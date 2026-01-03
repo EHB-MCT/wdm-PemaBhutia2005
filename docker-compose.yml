@@ -1,0 +1,24 @@
+services:
+  frontend:
+    build: ./wdm/frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    volumes:
+      - ./wdm/frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build: ./wdm/backend
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    environment:
+      - PORT=${BACKEND_PORT:-5000}
+    volumes:
+      - ./wdm/backend:/app
+      - /app/node_modules
+      - ./wdm/database.sqlite:/app/database.sqlite
+      - ./wdm/backend/uploads:/app/uploads
