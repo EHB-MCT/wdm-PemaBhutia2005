@@ -53,10 +53,32 @@ const OutfitMaker = () => {
 		}
 	};
 
-	const fetchSavedOutfits = async () => {
+const fetchSavedOutfits = async () => {
 		try {
 			const outfits = await outfitAPI.getAll();
-			setSavedOutfits(outfits);
+			// Add image URLs to outfit items
+			const outfitsWithImages = outfits.map(outfit => ({
+				...outfit,
+				top: outfit.top_id ? {
+					...outfit,
+					imageUrl: `${import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000"}/uploads/${outfit.top_image}`,
+					brand: outfit.top_brand,
+					name: outfit.top_brand || `${outfit.top_category} item`
+				} : null,
+				bottom: outfit.bottom_id ? {
+					...outfit,
+					imageUrl: `${import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000"}/uploads/${outfit.bottom_image}`,
+					brand: outfit.bottom_brand,
+					name: outfit.bottom_brand || `${outfit.bottom_category} item`
+				} : null,
+				shoes: outfit.shoes_id ? {
+					...outfit,
+					imageUrl: `${import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000"}/uploads/${outfit.shoes_image}`,
+					brand: outfit.shoes_brand,
+					name: outfit.shoes_brand || `${outfit.shoes_category} item`
+				} : null
+			}));
+			setSavedOutfits(outfitsWithImages);
 		} catch (error) {
 			console.error("Error fetching outfits:", error);
 		}
@@ -319,13 +341,127 @@ const OutfitMaker = () => {
 					</div>
 				</div>
 
-				{/* Saved Outfits */}
+{/* Saved Outfits */}
 				<div style={{ marginTop: "var(--space-8)" }}>
 					<h2 className="text-subheading" style={{ marginBottom: "var(--space-4)" }}>Saved Outfits</h2>
-					<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "var(--space-4)" }}>
+					<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
 						{savedOutfits.map((outfit) => (
 							<div key={outfit.id} className="card" style={{ padding: "var(--space-4)" }}>
-								<h3 className="text-subheading" style={{ marginBottom: "var(--space-2)" }}>{outfit.name}</h3>
+								<h3 className="text-subheading" style={{ marginBottom: "var(--space-3)", textAlign: "center" }}>{outfit.name}</h3>
+								
+								{/* Outfit Items Display */}
+								<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+									{/* Top */}
+									{outfit.top ? (
+										<div style={{ textAlign: "center" }}>
+											<img 
+												src={outfit.top.imageUrl} 
+												alt="top" 
+												style={{ 
+													width: "100%", 
+													maxWidth: "120px", 
+													height: "80px", 
+													objectFit: "cover", 
+													borderRadius: "var(--radius-sm)",
+													border: "1px solid var(--color-gray-200)"
+												}} 
+											/>
+											<p className="text-small" style={{ marginTop: "var(--space-1)", fontSize: "0.75rem", color: "var(--color-gray-600)" }}>
+												{outfit.top.brand}
+											</p>
+										</div>
+									) : (
+										<div style={{ 
+											width: "120px", 
+											height: "80px", 
+											border: "1px dashed var(--color-gray-300)", 
+											borderRadius: "var(--radius-sm)", 
+											display: "flex", 
+											alignItems: "center", 
+											justifyContent: "center", 
+											color: "var(--color-gray-400)",
+											fontSize: "0.75rem",
+											margin: "0 auto"
+										}}>
+											No top
+										</div>
+									)}
+
+									{/* Bottom */}
+									{outfit.bottom ? (
+										<div style={{ textAlign: "center" }}>
+											<img 
+												src={outfit.bottom.imageUrl} 
+												alt="bottom" 
+												style={{ 
+													width: "100%", 
+													maxWidth: "120px", 
+													height: "80px", 
+													objectFit: "cover", 
+													borderRadius: "var(--radius-sm)",
+													border: "1px solid var(--color-gray-200)"
+												}} 
+											/>
+											<p className="text-small" style={{ marginTop: "var(--space-1)", fontSize: "0.75rem", color: "var(--color-gray-600)" }}>
+												{outfit.bottom.brand}
+											</p>
+										</div>
+									) : (
+										<div style={{ 
+											width: "120px", 
+											height: "80px", 
+											border: "1px dashed var(--color-gray-300)", 
+											borderRadius: "var(--radius-sm)", 
+											display: "flex", 
+											alignItems: "center", 
+											justifyContent: "center", 
+											color: "var(--color-gray-400)",
+											fontSize: "0.75rem",
+											margin: "0 auto"
+										}}>
+											No bottom
+										</div>
+									)}
+								</div>
+
+								{/* Shoes - spans full width */}
+								<div style={{ textAlign: "center", marginBottom: "var(--space-3)" }}>
+									{outfit.shoes ? (
+										<>
+											<img 
+												src={outfit.shoes.imageUrl} 
+												alt="shoes" 
+												style={{ 
+													width: "100%", 
+													maxWidth: "120px", 
+													height: "80px", 
+													objectFit: "cover", 
+													borderRadius: "var(--radius-sm)",
+													border: "1px solid var(--color-gray-200)"
+												}} 
+											/>
+											<p className="text-small" style={{ marginTop: "var(--space-1)", fontSize: "0.75rem", color: "var(--color-gray-600)" }}>
+												{outfit.shoes.brand}
+											</p>
+										</>
+									) : (
+										<div style={{ 
+											width: "120px", 
+											height: "80px", 
+											border: "1px dashed var(--color-gray-300)", 
+											borderRadius: "var(--radius-sm)", 
+											display: "flex", 
+											alignItems: "center", 
+											justifyContent: "center", 
+											color: "var(--color-gray-400)",
+											fontSize: "0.75rem",
+											margin: "0 auto"
+										}}>
+											No shoes
+										</div>
+									)}
+								</div>
+
 								<button onClick={() => handleDeleteOutfit(outfit.id)} className="btn-danger" style={{ width: "100%", fontSize: "0.875rem" }}>
 									Delete
 								</button>
