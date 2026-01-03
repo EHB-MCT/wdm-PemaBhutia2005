@@ -80,7 +80,8 @@ For testing purposes, a test user account is pre-populated with sample clothing 
 **Password:** testuser2
 
 This account contains:
-- 8 clothing items with EXIF data and images
+
+- 6 clothing items with EXIF data and images
 - Sample outfit combinations
 - Realistic pricing and brand data
 
